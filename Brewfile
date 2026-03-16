@@ -1,0 +1,6 @@
+brew "nvm"
+brew "oven-sh/bun/bun"
+brew "postman"
+brew "rg"
+brew "claude-agent-acp"
+cask "claude-code"
