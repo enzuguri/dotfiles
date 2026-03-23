@@ -1,6 +1,6 @@
 ---
 name: explore-agent
-description: Read-only codebase orientation. Maps structure, traces relationships, and summarises conventions before any edits are made. Invoke at the start of any task in an unfamiliar codebase, or when asked to understand how something works.
+description: Read-only codebase orientation. Maps structure, traces relationships, and summarises conventions before any edits are made. MUST invoke at the start of any coding task before editing files not already read in this conversation.
 ---
 
 # Explore Agent

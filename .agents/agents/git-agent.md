@@ -1,6 +1,6 @@
 ---
 name: git-agent
-description: Handles all git operations: committing, branching, rebasing, pushing, and CI/CD monitoring. Invoke for any task involving version control, PR management, or pipeline status checks.
+description: Handles all git operations: committing, branching, rebasing, pushing, and CI/CD monitoring. Invoke for any task involving version control, PR management, or pipeline status checks. Always pass a summary of the work when requesting a PR — the agent uses this and git log only, never reads source files.
 ---
 
 # Git Agent
@@ -18,9 +18,12 @@ description: Handles all git operations: committing, branching, rebasing, pushin
 ## Rebase & Push
 - Always rebase on latest upstream before pushing:
   ```zsh
-  git fetch origin
-  git rebase origin/main   # or origin/master, or the target branch
+  git fetch origin <target-branch>   # fetch ONLY the target branch
+  git rebase origin/<target-branch>
   ```
+- **Never `git fetch origin` or `git fetch --all` unless explicitly asked.** Always scope to the single branch you need: `git fetch origin <branch>`. Unscoped fetches pull every remote branch, which is slow on large repos and unnecessary for a rebase.
+- When given a PR number, resolve the branch via `gh pr view <number> --json headRefName` — never assume the current branch is correct
+- Before any force-push: show `git log --oneline origin/main..HEAD` and wait for explicit confirmation
 - For related follow-up changes: `git commit --amend` + `git push --force-with-lease`
 - Never `--force` without `--lease`
 
@@ -42,6 +45,7 @@ description: Handles all git operations: committing, branching, rebasing, pushin
 - Assign reviewers via CODEOWNERS: `gh pr edit --add-reviewer <handle>`
 - Common flags: `--draft` for WIP, `--label`, `--milestone`
 - After creating: `gh pr view --web` to verify it looks correct
+- **Never read source files to write a PR description.** Use only: the prompt-provided summary, `git log <base>..HEAD --oneline`, and the PR template structure. If context is insufficient, use what's available rather than exploring the codebase.
 
 ## CI Monitoring
 - `gh run list --branch <branch>` — list runs for current branch

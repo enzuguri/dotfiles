@@ -30,8 +30,8 @@ Invoke when: task involves any git operations, PR management, or CI status check
 → See `agents/git-agent.md`
 
 ## `verification-agent`
-Handles: lint, test, build verification. Runs lint and tests in parallel.
-Invoke when: after any significant code edit, before declaring a task complete.
+Handles: lint, formatter check, test, and build verification. Runs all checks in parallel.
+MUST invoke after any code edit and before declaring any task complete. No exceptions.
 → See `agents/verification-agent.md`
 
 ## `research-agent`
@@ -41,8 +41,13 @@ Invoke when: multiple independent data points are needed before making a decisio
 
 ## `explore-agent`
 Handles: read-only codebase orientation. Maps entry points, traces export→import→callsite relationships, summarises conventions. Returns a structured summary — never prose.
-Invoke when: starting a task in an unfamiliar area, or when asked to understand how something works before editing.
+MUST invoke at the start of any coding task before editing files not already read in this conversation.
 → See `agents/explore-agent.md`
+
+## `bourgeoisie-reviewer`
+Handles: code review delivered as British landed gentry — factually accurate observations with old-money flair. Restrained approval for proper form, devastating understatement for bad.
+Invoke when: user requests a humorous or stylised code review.
+→ See `agents/bourgeoisie-reviewer.md`
 
 ---
 
@@ -52,8 +57,8 @@ These are always active and apply to all tasks:
 
 | Skill | Scope |
 |---|---|
-| `tooling` | Tool preferences, env setup |
-| `ast-grep` | Pattern library for code structure searches |
-| `code-style` | Code style and architecture rules |
-| `project-conventions` | How to orient in a new project |
-| `error-handling` | Exit codes, retries, failure reporting |
+| `tooling` | Preferred CLI tools (`rg`, `fd`, `jq`, `ast-grep`), env setup (`nvm use`, `gh` token), ownership checks via `codeowners` |
+| `ast-grep` | Patterns for finding/tracing functions, exports, imports, call sites, React components in TS/JS |
+| `code-style` | MUST apply before any Write/Edit. Strong typing, functional patterns, early returns, minimal diffs, no unnecessary docstrings, blast-radius awareness for shared modules |
+| `project-conventions` | Pre-task orientation checklist; match existing naming, imports, error handling, and test structure — never introduce new conventions |
+| `error-handling` | Check exit codes, verify outputs after writes/API calls/builds, dry-run before full execution |

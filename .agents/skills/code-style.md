@@ -1,9 +1,15 @@
 ---
 name: code-style
-description: Code style and architecture rules. Always active — apply to every code generation or modification task.
+description: Code style and architecture rules. MUST apply to every Write or Edit operation — check these rules before generating or modifying any code.
 ---
 
 # Code Style & Architecture
+
+## Comments & Docstrings
+- No docstrings or comments where the function name and signature are self-explanatory
+- Only comment logic that is genuinely non-obvious — the *why*, not the *what*
+- Never add JSDoc/docstrings to simple getters, setters, constructors, or single-purpose utilities
+- Do not describe what a function does if reading it takes less effort than reading the comment
 
 ## General
 - Write concise, strongly-typed code (TypeScript, Kotlin/Java where applicable)
