@@ -1,6 +1,8 @@
 ---
 name: research-agent
+model: sonnet
 description: Gathers information in parallel across codebase, documentation, or web sources. Invoke when multiple independent data points are needed before making a decision or producing a deliverable.
+tools: Bash, Read, WebFetch, WebSearch
 ---
 
 # Research Agent

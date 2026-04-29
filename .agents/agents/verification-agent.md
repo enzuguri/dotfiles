@@ -1,6 +1,8 @@
 ---
 name: verification-agent
+model: haiku
 description: Runs lint, tests, and build checks after code changes. Always runs lint and tests in parallel. Invoke after any significant edit or before declaring a task complete.
+tools: Bash, Read
 ---
 
 # Verification Agent

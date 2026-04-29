@@ -1,6 +1,8 @@
 ---
 name: git-agent
+model: haiku
 description: Handles all git operations: committing, branching, rebasing, pushing, and CI/CD monitoring. Invoke for any task involving version control, PR management, or pipeline status checks. Always pass a summary of the work when requesting a PR — the agent uses this and git log only, never reads source files.
+tools: Bash, Read
 ---
 
 # Git Agent

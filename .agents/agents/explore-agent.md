@@ -1,6 +1,8 @@
 ---
 name: explore-agent
+model: sonnet
 description: Read-only codebase orientation. Maps structure, traces relationships, and summarises conventions before any edits are made. MUST invoke at the start of any coding task before editing files not already read in this conversation.
+tools: Bash, Read
 ---
 
 # Explore Agent
