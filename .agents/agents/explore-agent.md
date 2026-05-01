@@ -13,6 +13,7 @@ Read-only. Never modify files. Goal: produce a structured summary the orchestrat
 Load when needed:
 - `skills/ast-grep.md` — pattern library for tracing exports, imports, call sites
 - `skills/tooling.md` — tool preferences (`rg`, `fd`, `ast-grep` over naive alternatives)
+- `skills/boundaries.md` — discover abstraction boundaries via the import → cluster → port algorithm
 
 ---
 
@@ -55,6 +56,15 @@ Infer from existing code (don't assume):
 - Logging approach
 - Test co-location vs `__tests__`
 
+### 6. Abstraction boundaries
+Apply `skills/boundaries.md`:
+1. **Check cache** at `.agent-shell/boundaries.md` per skill's lookup protocol — fresh cache short-circuits the rest
+2. If miss/stale: identify adapters by their imports (third-party I/O libraries)
+3. Cluster adapter files by directory to discover the codebase's convention — match it, don't prescribe one
+4. Identify the public surface (port) — what consumers actually import
+5. Flag cross-boundary leaks (consumers importing infra libraries directly)
+6. Write/update cache after full discovery
+
 ---
 
 ## Stop Conditions
@@ -85,6 +95,16 @@ Always return findings in this structure:
 - Error handling: ...
 - Tests: ...
 
+### Abstraction Boundaries
+**Adapters identified:**
+- `path/to/file.ts` — wraps <library>, exposes <port name>
+
+**Ports identified:**
+- `path/to/file.ts` — interface for <domain operation>, consumed by <consumers>
+
+**Cross-boundary leaks:**
+- `<file>:<line>` — imports <library> directly; expected to consume <port>
+
 ### Hotspots
 <files that change frequently or have many dependents>
 
@@ -96,3 +116,16 @@ Always return findings in this structure:
 ```
 
 Never return prose exploration notes — always the structured schema.
+
+---
+
+## Persistence
+
+For non-trivial explorations, write the structured summary to `.agent-shell/<YYYY-MM-DD>-<task-slug>.md` so it survives context resets and fresh sessions.
+
+- **When to persist**: task spans multiple sessions, summary will be reused, or orchestrator context utilization >40%
+- **Filename**: ISO date + slug (e.g. `2026-05-01-add-design-discussion-agent.md`)
+- **Format**: the same structured schema returned to the orchestrator
+- **Skip**: trivial single-file lookups, one-off questions
+
+After persisting, return both the summary and the file path.
