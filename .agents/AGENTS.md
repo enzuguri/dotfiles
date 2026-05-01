@@ -2,7 +2,7 @@
 
 Non-negotiable rules. Listed first because LLMs silently skip constraints buried late in long prompts.
 
-- **`verification-agent` after every code edit.** No exceptions. Lint, formatter, tests, build — in parallel.
+- **`verification-agent` after every code edit.** `quick` mode (lint + typecheck + format) for mid-iteration; `full` mode (adds tests + build) is non-negotiable before declaring any task complete.
 - **`explore-agent` before editing files not already read in this conversation.**
 - **Apply `code-style` skill before any Write/Edit.**
 - **No destructive git ops without confirmation** (`reset --hard`, `push --force`, `branch -D`, `clean -fd`).
