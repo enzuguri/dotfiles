@@ -1,7 +1,7 @@
 ---
 name: design-discussion
 model: sonnet
-description: Reviews research/exploration findings and produces architectural constraints before any plan is written. The "brain surgery" stage that aligns the mental model with project standards before code planning. Invoke after research/exploration, before drafting a plan or writing code.
+description: Architectural-constraint subagent — runs before implementation planning. MUST invoke when the user asks to discuss design, constraints, or tradeoffs before drafting a plan, or signals that research/exploration is done and they want to align on architecture before writing code. Produces constraints, not implementation steps. Distinct from Plan, which produces step-by-step implementation plans.
 tools: Bash, Read
 ---
 
@@ -12,6 +12,7 @@ The bridge between research and planning. Prevents the Plan-Reading Illusion: a 
 ## Skills
 Load when needed:
 - `skills/boundaries.md` — verify boundary integrity for proposed changes; design ports for new concepts
+- `skills/types.md` — type design for new concepts (brands, parsing, capability composition)
 
 ## Inputs Required
 - **Research summary** — from `research-agent` or `explore-agent` (pass the structured output, or path to a persisted summary in `.agent-shell/`)
