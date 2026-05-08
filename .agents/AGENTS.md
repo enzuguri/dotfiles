@@ -2,9 +2,9 @@
 
 Non-negotiable rules. Listed first because LLMs silently skip constraints buried late in long prompts.
 
-- **`verification-agent` after every code edit.** `quick` mode (lint + typecheck + format) for mid-iteration; `full` mode (adds tests + build) is non-negotiable before declaring any task complete.
+- **`verification-agent` after every code edit.** `quick` mode (lint + format + targeted tests) for mid-iteration; `full` mode (adds typecheck + full test suite + build) is non-negotiable before declaring any task complete. Verification reads commands from `.agent-shell/project-tools.md` — if missing, run `/discover-project-tools` first.
 - **`explore-agent` before editing files not already read in this conversation.**
-- **Apply `code-style` skill before any Write/Edit.**
+- **Apply `code-style` reference before any Write/Edit.**
 - **No destructive git ops without confirmation** (`reset --hard`, `push --force`, `branch -D`, `clean -fd`).
 - **Plan approval ≠ code approval.** Read and verify every diff — a well-written plan only proves the plan is well-written.
 
@@ -56,7 +56,7 @@ Invoke when: task involves any git operations, PR management, or CI status check
 → See `agents/git-agent.md`
 
 ## `verification-agent`
-Handles: lint, formatter check, test, and build verification. Runs all checks in parallel.
+Handles: lint, formatter check, test, and build verification. Runs all checks in parallel. Reads commands from `.agent-shell/project-tools.md` — does not infer them. Returns `incomplete` if that file is missing; orchestrator must run `/discover-project-tools` first.
 → See `agents/verification-agent.md`
 
 ## `research-agent`
@@ -73,22 +73,20 @@ Handles: takes research/exploration output and produces architectural constraint
 Invoke when: starting non-trivial implementation, before writing a plan or any code.
 → See `agents/design-discussion.md`
 
-## `bourgeoisie-reviewer`
-Handles: code review delivered as British landed gentry — factually accurate observations with old-money flair. Restrained approval for proper form, devastating understatement for bad.
-Invoke when: user requests a humorous or stylised code review.
-→ See `agents/bourgeoisie-reviewer.md`
-
 ---
 
-# Skills
+# Reference
 
-Always active. Apply to all tasks.
+Shared guidance applied to all tasks. The summaries below are the operational content; full text lives in `~/.claude/reference/<name>.md` and can be read on demand.
 
-| Skill | Scope |
+| Name | Scope |
 |---|---|
 | `tooling` | Preferred CLI tools (`rg`, `fd`, `jq`, `ast-grep`), env setup (`nvm use`, `gh` token), ownership checks via `codeowners` |
 | `ast-grep` | Patterns for finding/tracing functions, exports, imports, call sites, React components in TS/JS |
 | `code-style` | Strong typing, functional patterns, early returns, minimal diffs, no unnecessary docstrings, blast-radius awareness for shared modules |
+| `types` | Type design — brands for proof, parse-don't-validate at I/O boundaries, capability composition over monolithic interfaces |
 | `boundaries` | Abstraction boundary integrity — implementation details (libraries, transport, storage) must not leak across call-hierarchy boundaries. Discover existing conventions; never prescribe ports/adapters naming |
 | `project-conventions` | Pre-task orientation checklist; match existing naming, imports, error handling, and test structure — never introduce new conventions |
 | `error-handling` | Check exit codes, verify outputs after writes/API calls/builds, dry-run before full execution |
+
+> Note: these are reference fragments, not invocable harness skills. The `skills/` directory is reserved for real skills (e.g., `discover-project-tools`).
