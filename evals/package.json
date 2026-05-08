@@ -1,0 +1,20 @@
+{
+  "name": "dotfiles-evals",
+  "description": "Routing-eval harness for .agents/ subagents and skills",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "eval": "bun run src/cli.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.132",
+    "yaml": "^2.8.4"
+  }
+}

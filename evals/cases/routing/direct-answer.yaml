@@ -1,0 +1,19 @@
+- id: direct-greeting
+  prompt: "hello"
+  expected: null
+  notes: |
+    No subagent or skill should be invoked for trivial greetings. If anything
+    routes here, the orchestrator is over-eager.
+
+- id: direct-thanks
+  prompt: "thanks, that's helpful"
+  expected: null
+  notes: |
+    Acknowledgement — no work to do. Routing to anything is a regression.
+
+- id: direct-trivial-question
+  prompt: "What does the acronym TLA stand for?"
+  expected: null
+  notes: |
+    Pure factual recall, no codebase or external data needed. Orchestrator
+    should answer directly.

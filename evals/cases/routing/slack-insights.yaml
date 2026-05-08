@@ -1,0 +1,18 @@
+- id: slack-channel-digest
+  prompt: "Give me a digest of what's been happening in the #platform-eng Slack channel over the past few days."
+  expected: "agent:slack-insights"
+  notes: |
+    "Channel digest" is in agent description. Direct trigger.
+
+- id: slack-period-rollup
+  prompt: "Roll up the slack-insights reports from the last two weeks into a summary I can share with my manager."
+  expected: "agent:slack-insights"
+  notes: |
+    Agent: "synthesises existing reports into a period summary — no Slack access
+    needed for rollups." Direct match.
+
+- id: slack-peer-interest
+  prompt: "I'd like to know who at the company has been talking about distributed tracing recently — surface peer interest from Slack."
+  expected: "agent:slack-insights"
+  notes: |
+    "Peer interest mining" is in agent description.

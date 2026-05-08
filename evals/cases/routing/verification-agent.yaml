@@ -1,0 +1,25 @@
+- id: verify-after-refactor
+  prompt: "I just finished a refactor — please run the linter, tests, and build to confirm nothing's broken."
+  expected: "agent:verification-agent"
+  notes: |
+    Agent: "Runs lint, tests, and build checks after code changes." Prompt
+    explicitly requests all three.
+
+- id: verify-quick-mid-iteration
+  prompt: "Just finished one of the changes — can you do a quick lint and format check before I move on?"
+  expected: "agent:verification-agent"
+  notes: |
+    Targets quick mode: "(lint + format + targeted tests, default for
+    mid-iteration)". Prompt language matches agent's mode description.
+
+- id: verify-pre-completion
+  prompt: "I think I'm done with the feature. Run the full check — typecheck, full test suite, build — before I mark it complete."
+  expected: "agent:verification-agent"
+  alternates:
+    - "skill:discover-project-tools"
+  notes: |
+    Targets full mode: "(adds typecheck + full test suite + build, required
+    before task completion)". Accepts discover-project-tools as a legitimate
+    alternate route: that skill writes .agent-shell/project-tools.md, which
+    verification-agent then reads. On unfamiliar repos the orchestrator
+    correctly routes to discovery first; we don't penalise that.

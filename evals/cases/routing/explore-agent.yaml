@@ -1,0 +1,26 @@
+- id: explore-on-fresh-clone
+  prompt: "I just cloned this repo, can you help me understand the structure?"
+  expected: "agent:explore-agent"
+  notes: |
+    Canonical case. Agent description: "MUST invoke at the start of any
+    coding task before editing files not already read in this conversation."
+
+- id: explore-before-feature-add
+  prompt: "I want to add a new authentication endpoint to the user service. Where should I start?"
+  expected: "agent:explore-agent"
+  notes: |
+    Implies editing files not yet read. Agent description mandates exploration
+    before edits. Open-world risk: 'Plan' might compete here.
+
+- id: explore-trace-relationship
+  prompt: "How is the AuthMiddleware class wired up in this codebase? I want to understand what calls it and what it depends on."
+  expected: "agent:explore-agent"
+  notes: |
+    "Maps structure, traces relationships" — direct trigger language. Open-world
+    risk: 'Explore' (built-in) and 'glean-code:codebase-navigator' compete.
+
+- id: explore-orient-bug-area
+  prompt: "There's a bug in the order processing flow but I haven't worked in that part of the code before. Help me orient before I start digging in."
+  expected: "agent:explore-agent"
+  notes: |
+    "Read-only codebase orientation" — verbatim match to agent's purpose.

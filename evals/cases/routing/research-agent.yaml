@@ -1,0 +1,20 @@
+- id: research-multi-source
+  prompt: "I need to compare how three different libraries handle WebSocket reconnection — gather the relevant details from their docs and any examples in our codebase, in parallel."
+  expected: "agent:research-agent"
+  notes: |
+    Agent: "Gathers information in parallel across codebase, documentation, or
+    web sources." Multi-source + parallel = direct trigger.
+
+- id: research-decision-prep
+  prompt: "Before I decide which queue technology to adopt, gather what's known about each option from our internal docs, the public docs, and any prior art in our other repos."
+  expected: "agent:research-agent"
+  notes: |
+    "Multiple independent data points needed before making a decision" — verbatim
+    from agent description.
+
+- id: research-cross-source-prep
+  prompt: "Pull together information from the codebase, our wiki, and recent blog posts on this topic so I have one summary to work from."
+  expected: "agent:research-agent"
+  notes: |
+    Multi-source consolidation. Open-world risk: glean-search:enterprise-searcher
+    competes for the wiki side.

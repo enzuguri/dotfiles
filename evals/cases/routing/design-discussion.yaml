@@ -1,0 +1,20 @@
+- id: design-after-research
+  prompt: "I've done the research on the existing auth flow and what we need to change. Before I write the implementation plan, I want to think through the architectural constraints — what are we locked into, what's flexible?"
+  expected: "agent:design-discussion"
+  notes: |
+    Matches agent description: "Reviews research/exploration findings and
+    produces architectural constraints before any plan is written."
+
+- id: design-before-plan
+  prompt: "I have a rough idea of what to build but I want to align on standards and constraints with the project before drafting a plan. Help me get the mental model right."
+  expected: "agent:design-discussion"
+  notes: |
+    "Brain surgery stage that aligns the mental model with project standards
+    before code planning" — direct match.
+
+- id: design-architectural-tradeoffs
+  prompt: "Before we plan the migration, let's discuss the design tradeoffs and what constraints the existing system imposes."
+  expected: "agent:design-discussion"
+  notes: |
+    Open-world risk: built-in 'Plan' competes hard here. If this fails, the
+    description's "before any plan is written" boundary needs sharpening.

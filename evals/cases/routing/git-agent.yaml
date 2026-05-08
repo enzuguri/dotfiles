@@ -1,0 +1,26 @@
+- id: git-commit-and-push
+  prompt: "Please commit the staged changes with a sensible message and push to origin."
+  expected: "agent:git-agent"
+  notes: |
+    Direct git operation. Agent: "Handles all git operations: committing,
+    branching, rebasing, pushing, and CI/CD monitoring."
+
+- id: git-rebase-onto-main
+  prompt: "Rebase my current branch onto main and resolve any conflicts."
+  expected: "agent:git-agent"
+  notes: |
+    Rebasing is in agent's enumerated capabilities. Conflict resolution implies
+    real git work, not just status checks.
+
+- id: git-open-pr
+  prompt: "Open a pull request for this branch with a clear description of what changed."
+  expected: "agent:git-agent"
+  notes: |
+    Agent description includes "PR management". Should route despite the prompt
+    not mentioning git directly.
+
+- id: git-check-ci
+  prompt: "Check the CI status on the PR I just opened — let me know if anything's failing."
+  expected: "agent:git-agent"
+  notes: |
+    "CI/CD monitoring" is in agent description. Tests pipeline-status routing.
