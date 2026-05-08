@@ -10,19 +10,32 @@ function pad(s: string, n: number): string {
   return s + " ".repeat(n - s.length);
 }
 
-function passCell(pass: boolean | undefined, quality: number | undefined): string {
+function passCell(
+  pass: boolean | undefined,
+  quality: number | undefined,
+  mentionCount: number | undefined,
+  sampleCount: number | undefined,
+): string {
   if (pass === undefined) return "-";
   const mark = pass ? "✓" : "✗";
   const q = quality !== undefined ? quality.toFixed(2) : "0.00";
-  return `${mark} ${q}`;
+  const base = `${mark} ${q}`;
+  // Surface whether the orchestrator's pre-tool text mentioned the expected
+  // agent on every row. On fail: distinguishes "didn't see it" from "saw it,
+  // chose otherwise". On pass: distinguishes a comfortable pass (low mention)
+  // from a fence-sitter (high mention — future regression risk).
+  if (mentionCount !== undefined && sampleCount !== undefined && sampleCount > 0) {
+    return `${base} m${mentionCount}/${sampleCount}`;
+  }
+  return base;
 }
 
 export function printReport(summary: RunnerSummary, openWorldEmpty: boolean): void {
   const cols = [
     { title: "case_id", width: 32 },
     { title: "expected", width: 28 },
-    { title: "closed", width: 10 },
-    { title: "open", width: 10 },
+    { title: "closed", width: 14 },
+    { title: "open", width: 14 },
     { title: "cost~$", width: 10 },
     { title: "ms", width: 8 },
   ];
@@ -37,8 +50,10 @@ export function printReport(summary: RunnerSummary, openWorldEmpty: boolean): vo
   let evaluated = 0;
 
   for (const r of summary.results) {
-    const closedStr = passCell(r.closed.pass, r.closed.quality);
-    const openStr = openWorldEmpty ? "(skip)" : passCell(r.open.pass, r.open.quality);
+    const closedStr = passCell(r.closed.pass, r.closed.quality, r.closed.mentionCount, r.closed.samples.length);
+    const openStr = openWorldEmpty
+      ? "(skip)"
+      : passCell(r.open.pass, r.open.quality, r.open.mentionCount, r.open.samples.length);
     const row = [
       pad(r.caseId, cols[0]!.width),
       pad(expectedToString(r.expected), cols[1]!.width),

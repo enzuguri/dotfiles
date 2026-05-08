@@ -8,6 +8,7 @@ export type EvalCase = {
   prompt: string;
   expected: ExpectedRoute;
   alternates: ExpectedRoute[];
+  preamble?: string;
   notes?: string;
   fixtureCwd?: string;
 };
@@ -20,6 +21,7 @@ export type ToolInvocation = {
 
 export type RawSample = {
   invocations: ToolInvocation[];
+  preToolText: string;
   costUsd: number;
   inputTokens: number;
   outputTokens: number;
@@ -33,11 +35,13 @@ export type RawSample = {
 export type SampleResult = RawSample & {
   pass: boolean;
   positionRank: number;
+  expectedNameMentioned: boolean;
 };
 
 export type ContextResult = {
   pass: boolean;
   quality: number;
+  mentionCount: number;
   samples: SampleResult[];
 };
 

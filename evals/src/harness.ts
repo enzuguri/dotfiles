@@ -49,6 +49,18 @@ function extractRouting(content: unknown, startPosition: number): ToolInvocation
   return found;
 }
 
+function extractText(content: unknown): string {
+  if (!Array.isArray(content)) return "";
+  const parts: string[] = [];
+  for (const block of content) {
+    if (typeof block !== "object" || block === null) continue;
+    const b = block as { type?: string; text?: string; thinking?: string };
+    if (b.type === "text" && typeof b.text === "string") parts.push(b.text);
+    else if (b.type === "thinking" && typeof b.thinking === "string") parts.push(b.thinking);
+  }
+  return parts.join("\n");
+}
+
 const denyHook: HookCallback = async (input) => {
   if (input.hook_event_name !== "PreToolUse") return {};
   if (!BLOCKED_TOOLS.has(input.tool_name)) return {};
@@ -69,6 +81,7 @@ export async function runOne(
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const start = Date.now();
   const invocations: ToolInvocation[] = [];
+  const textParts: string[] = [];
   const abortController = new AbortController();
 
   let costUsd = 0;
@@ -80,8 +93,12 @@ export async function runOne(
   let errored = false;
 
   try {
+    const fullPrompt = testCase.preamble
+      ? `${testCase.preamble}\n\n---\n\n${testCase.prompt}`
+      : testCase.prompt;
+
     const stream = query({
-      prompt: testCase.prompt,
+      prompt: fullPrompt,
       options: {
         agents,
         cwd: testCase.fixtureCwd ?? REPO_ROOT,
@@ -112,6 +129,10 @@ export async function runOne(
             cacheCreateTokens += usage.cache_creation_input_tokens ?? 0;
           }
         }
+        if (invocations.length === 0) {
+          const text = extractText(msg.message.content);
+          if (text) textParts.push(text);
+        }
         const newInvocations = extractRouting(msg.message.content, invocations.length);
         if (newInvocations.length > 0) {
           invocations.push(...newInvocations);
@@ -139,6 +160,7 @@ export async function runOne(
 
   return {
     invocations,
+    preToolText: textParts.join("\n"),
     costUsd,
     inputTokens,
     outputTokens,

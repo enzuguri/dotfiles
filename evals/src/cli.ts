@@ -13,7 +13,7 @@ type ParsedArgs = {
 
 function parseArgs(argv: readonly string[]): ParsedArgs {
   const out: ParsedArgs = {
-    samples: 3,
+    samples: 5,
     budgetUsd: 10,
     concurrency: 4,
     model: "sonnet",
@@ -56,7 +56,7 @@ function printHelp(): void {
 Flags:
   --filter <substr>       only run cases whose id contains <substr>
   --case <id>             only run the case with exact id
-  --samples <n>           samples per (case, context); default 3
+  --samples <n>           samples per (case, context); default 5
   --budget <usd>          abort suite when cumulative estimated cost exceeds; default 10
   --concurrency <n>       parallel sampler workers; default 4
   --model <name>          orchestrator model (sonnet|haiku|opus or full id); default sonnet

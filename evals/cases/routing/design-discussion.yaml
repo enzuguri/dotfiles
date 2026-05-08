@@ -18,3 +18,62 @@
   notes: |
     Open-world risk: built-in 'Plan' competes hard here. If this fails, the
     description's "before any plan is written" boundary needs sharpening.
+
+- id: design-critique-of-plan-warm
+  expected: "agent:design-discussion"
+  preamble: |
+    I drafted this plan for the auth-middleware migration:
+
+    1. Introduce a new `AuthSession` type with brand `SessionToken`.
+    2. Replace the existing `requireAuth` middleware in `src/server/middleware/`
+       with a new `withSession` wrapper that reads the brand and attaches
+       the session to the request context.
+    3. Migrate route handlers one file at a time, preserving the existing
+       error-response shape so clients aren't broken.
+    4. Once all handlers are migrated, delete the old middleware module.
+  prompt: "Before I commit to this, I want a design critique — am I missing constraints from the existing architecture? What's locked in that this plan would conflict with?"
+  notes: |
+    Warm-context variant. User has a draft plan and wants design-stage
+    critique before locking in implementation. Tests whether visible
+    pipeline-stage cues (draft plan + 'before I commit') route to
+    design-discussion rather than triggering the orchestrator's own
+    architectural-reasoning instinct or a Plan-style response.
+
+- id: design-architectural-tradeoffs-warm
+  expected: "agent:design-discussion"
+  preamble: |
+    The existing payments system surface that this migration touches:
+
+    - Public API: `POST /payments/charge`, `POST /payments/refund`, both
+      returning `{ id, status, error? }`. Clients depend on the exact shape.
+    - Integration points: Stripe and Adyen adapters behind a `Gateway`
+      interface; idempotency keys flow through a `RequestContext` brand.
+    - Persistence: charges write to `payments_v2` with append-only semantics;
+      no row updates outside a maintenance migration window.
+    - Cross-cutting: PCI-scoped logging redacts pan/cvv at the boundary,
+      enforced by `redactSensitive` middleware.
+  prompt: "Before we plan the migration off Adyen, let's discuss the design tradeoffs and what constraints the existing system imposes."
+  notes: |
+    Warm-context variant of design-architectural-tradeoffs. Tests whether
+    inlined API surface + integration-point detail shifts the cold case's
+    judgement failure (m3/3 — orchestrator reads design-discussion and
+    chooses to do the architectural reasoning itself).
+
+- id: design-after-explore-warm
+  expected: "agent:design-discussion"
+  preamble: |
+    I've finished mapping the data-ingestion pipeline. The relevant pieces:
+
+    - `IngestService` (3 implementations behind a common interface) handles
+      raw payload validation. Convention: parse-don't-validate at the boundary.
+    - `Pipeline` orchestrates ingest → transform → sink, currently sequential.
+    - Errors are typed as `IngestError | TransformError | SinkError` and
+      surface to the caller via Result-like discriminated union.
+    - Tests live alongside source as `*.test.ts`; integration tests hit a
+      real local Postgres, never mocks.
+  prompt: "Now I want to think through the architectural constraints before I draft a plan to add a parallel-fanout transform stage. What's flexible, what's locked in?"
+  notes: |
+    Warm-context variant. Mirrors the cold 'design-after-research' case but
+    embeds concrete exploration findings inline. If this routes and the cold
+    variant doesn't, that suggests the orchestrator needs visible artifacts of
+    prior pipeline stages — not just the user asserting them.

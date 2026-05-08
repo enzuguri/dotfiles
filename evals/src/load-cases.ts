@@ -8,6 +8,7 @@ type RawCase = {
   prompt?: string;
   expected?: string | null;
   alternates?: string[];
+  preamble?: string;
   notes?: string;
   fixtureCwd?: string;
 };
@@ -68,6 +69,7 @@ export async function loadCasesFromDir(rootDir: string): Promise<EvalCase[]> {
         prompt: entry.prompt,
         expected: parseExpected(entry.expected, ctx),
         alternates,
+        preamble: entry.preamble,
         notes: entry.notes,
         fixtureCwd: entry.fixtureCwd,
       });

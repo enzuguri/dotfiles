@@ -17,6 +17,19 @@ Load when needed:
 
 ---
 
+## Hard Rules
+
+Non-negotiable. Past invocations have failed by violating these — they are listed early so they are not silently skipped.
+
+1. **Grep before read.** Never Read a file until at least one `rg` hit confirms it contains the target symbol. Only exception: structural anchors (`package.json`, `tsconfig.json`, `pyproject.toml`, `build.gradle`, `Dockerfile`) which are read for orientation, not symbol lookup.
+2. **Use the Read tool, never `cat`.** `cat` is forbidden as a file viewer. It is only permitted inside Bash pipelines (e.g. `cat file | jq`). Long Bash streaks tend to drift into `cat`-as-Read — do not.
+3. **`rg` over `grep`.** Never `find ... | xargs grep`. Use `rg -l <pattern> <dir> -g '*.kt'` or equivalent. `rg` is faster and respects `.gitignore`.
+4. **Batch searches in parallel.** Before opening any file, run all relevant symbol searches in one Bash block — multiple `rg` calls or `rg -e foo -e bar -e baz` for multi-term. Reads happen only against the results.
+5. **Prefer ranged Reads for large files.** Once `rg -n` has located the relevant lines in a file >300 lines, Read with `offset`/`limit` around the hit. Whole-file reads are reserved for files <300 lines or when the whole structure matters.
+6. **Read budget: 8 files.** If you have read 8 files without writing any section of the output schema, stop reading. Synthesise what you have, identify specific gaps, and grep for them. Do not speculatively read more files.
+
+---
+
 ## Traversal Order
 
 Always follow this sequence — order matters:
@@ -74,6 +87,8 @@ Stop exploring when you can answer:
 - What conventions must be matched?
 
 Avoid over-exploration — time-box to what's needed for the task.
+
+**Hard ceiling**: 8 file Reads. At the budget, stop and synthesise. If a follow-up grep reveals a critical gap, you may Read one more targeted file — but never resume directory-sweep reading. If you hit ~30 tool calls without converging on the output schema, return what you have and flag the gap; do not loop.
 
 ---
 

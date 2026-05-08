@@ -18,3 +18,41 @@
   notes: |
     Multi-source consolidation. Open-world risk: glean-search:enterprise-searcher
     competes for the wiki side.
+
+- id: research-decision-prep-warm
+  expected: "agent:research-agent"
+  preamble: |
+    Draft option-comparison for the queue-technology decision so far:
+
+    | Option   | Throughput | Ops cost | Failure modes |
+    |----------|------------|----------|---------------|
+    | Kafka    | high       | high     | (gap)         |
+    | NATS     | medium     | medium   | (gap)         |
+    | RabbitMQ | (gap)      | low      | well-known    |
+
+    The gaps are: Kafka and NATS failure modes, RabbitMQ throughput, and
+    whatever our internal docs and prior-art repos say about each.
+  prompt: "Fill the gaps from our internal docs, the public docs, and any prior art in our other repos. Keep the table shape."
+  notes: |
+    Warm-context variant of research-decision-prep. Tests whether visible
+    partial findings + an explicit multi-source ask flips the m3/3 judgement
+    failure on the cold case.
+
+- id: research-extend-partial-warm
+  expected: "agent:research-agent"
+  preamble: |
+    So far I've gathered this on connection-pool libraries:
+
+    | Library     | License | Connection limits | Async support |
+    |-------------|---------|-------------------|---------------|
+    | pg-pool     | MIT     | per-process       | yes           |
+    | generic-pool| MIT     | per-process       | yes           |
+
+    Still missing: failover behaviour, observability hooks, and how each
+    handles long-running transactions.
+  prompt: "Fill in the rest from the libraries' docs, our internal wiki, and any examples we already have in our other repos — keep the same table shape so I can compare."
+  notes: |
+    Warm-context variant. User has partial structured findings and wants
+    multi-source completion. Tests whether visible prior-research artifacts
+    plus an explicit multi-source ask routes to research-agent more reliably
+    than the cold 'multi-source from zero' framing.

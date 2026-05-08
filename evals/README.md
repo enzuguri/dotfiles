@@ -18,10 +18,10 @@ Behaviour evals (does the agent do its job correctly once invoked?) are **out of
 
 ```bash
 cd evals
-bun run eval                    # full suite, samples=3, budget=$10
+bun run eval                    # full suite, samples=5, budget=$10
 bun run eval --case <id>        # single case
 bun run eval --filter <substr>  # all cases whose id contains substr
-bun run eval --samples 5        # higher sample count, less noise (more cost)
+bun run eval --samples 3        # lower sample count, faster but noisier
 bun run eval --budget 25        # raise budget cap
 bun run eval --concurrency 2    # fewer parallel samplers
 bun run eval --model haiku      # cheaper but worse routing
@@ -29,7 +29,7 @@ bun run eval --verbose          # per-job logging
 bun run eval --help
 ```
 
-Defaults: `samples=3`, `budget=$10` estimated, `concurrency=4`, `model=sonnet`.
+Defaults: `samples=5`, `budget=$10` estimated, `concurrency=4`, `model=sonnet`.
 
 Each sample observes the orchestrator's first `Agent`/`Skill` `tool_use` block, then aborts via `AbortController` (saves cost and prevents post-routing flailing). Subagents never execute — a `PreToolUse` hook denies `Agent`, `Skill`, `Bash`, `Edit`, `Write`, `NotebookEdit`, `WebFetch`, `WebSearch`. `Read`, `Grep`, `Glob` stay allowed so the orchestrator can do realistic pre-routing inspection.
 
@@ -118,7 +118,7 @@ The fixture is checked in. If a plugin source path moves, update `PLUGIN_SOURCES
 
 The orchestrator's authoritative `total_cost_usd` arrives in the SDK's `result` message, which we never receive because we abort after the first routing decision. Cost is therefore **estimated** from per-message `usage` × per-million-token rates in `src/cost.ts`. Update those rates when pricing shifts.
 
-Per-sample cost (Sonnet 4.6, as of 2026-01): ~$0.02–0.05 cold cache; ~$0.005 warm. Full plan-spec'd 30-case suite at samples=3 across both contexts: roughly $5–7.
+Per-sample cost (Sonnet 4.6, as of 2026-01): ~$0.02–0.05 cold cache; ~$0.005 warm. Observed full-suite cost at samples=5 across both contexts: ~$3.30. Drops to ~$2 at samples=3.
 
 ## Smoke scripts (no full-suite cost)
 
