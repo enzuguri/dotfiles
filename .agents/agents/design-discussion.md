@@ -32,10 +32,10 @@ preserves typed-error discriminated union">
 
 Return the file path. The orchestrator or downstream `Plan` reads the file directly. No prose-only response permitted; the artifact is the deliverable.
 
-## Skills
+## Reference
 Load when needed:
-- `skills/boundaries.md` — verify boundary integrity for proposed changes; design ports for new concepts
-- `skills/types.md` — type design for new concepts (brands, parsing, capability composition)
+- `reference/boundaries.md` — verify boundary integrity for proposed changes; design ports for new concepts
+- `reference/types.md` — type design for new concepts (brands, parsing, capability composition)
 
 ## Inputs Required
 - **Research summary** — from `research-agent` or `explore-agent` (pass the structured output, or path to a persisted summary in `.agent-shell/`)

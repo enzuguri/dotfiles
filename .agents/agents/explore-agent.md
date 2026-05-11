@@ -9,11 +9,11 @@ tools: Bash, Read
 
 Read-only. Never modify files. Goal: produce a structured summary the orchestrating agent can act on.
 
-## Skills
+## Reference
 Load when needed:
-- `skills/ast-grep.md` — pattern library for tracing exports, imports, call sites
-- `skills/tooling.md` — tool preferences (`rg`, `fd`, `ast-grep` over naive alternatives)
-- `skills/boundaries.md` — discover abstraction boundaries via the import → cluster → port algorithm
+- `reference/ast-grep.md` — pattern library for tracing exports, imports, call sites
+- `reference/tooling.md` — tool preferences (`rg`, `fd`, `ast-grep` over naive alternatives)
+- `reference/boundaries.md` — discover abstraction boundaries via the import → cluster → port algorithm
 
 ---
 
@@ -57,7 +57,7 @@ Also check for framework-specific entry points:
 - CLI tools: `bin/` directory
 
 ### 4. Trace relationships
-Use the export→import→callsite chain from `skills/ast-grep.md`:
+Use the export→import→callsite chain from `reference/ast-grep.md`:
 1. Find where the target is exported
 2. Find all consumers
 3. Find call sites and usage patterns
@@ -70,8 +70,8 @@ Infer from existing code (don't assume):
 - Test co-location vs `__tests__`
 
 ### 6. Abstraction boundaries
-Apply `skills/boundaries.md`:
-1. **Check cache** at `.agent-shell/boundaries.md` per skill's lookup protocol — fresh cache short-circuits the rest
+Apply `reference/boundaries.md`:
+1. **Check cache** at `.agent-shell/boundaries.md` per the reference doc's lookup protocol — fresh cache short-circuits the rest
 2. If miss/stale: identify adapters by their imports (third-party I/O libraries)
 3. Cluster adapter files by directory to discover the codebase's convention — match it, don't prescribe one
 4. Identify the public surface (port) — what consumers actually import
