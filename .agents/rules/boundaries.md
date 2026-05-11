@@ -141,7 +141,7 @@ Surface the trade-off when relaxing the rule. Never silently relax.
 
 ## Caching
 
-For large repos the discovery algorithm has real cost on cold runs. Cache the result per repo at `.agent-shell/boundaries.md`. Ensure `.agent-shell/` is gitignored in the consuming repo.
+For large repos the discovery algorithm has real cost on cold runs. Cache the result per repo at `.agents/context/boundaries.md`. The consuming repo decides whether to commit `.agents/context/` (it is generated but useful for teammates) or gitignore it.
 
 ### Cache file format
 
@@ -181,7 +181,7 @@ Before running discovery (Detection Steps 1–3):
 No incremental rebuilds. Full rebuild is fast enough at most scales; if it isn't, partition the repo by area first.
 
 ### Manual invalidation
-`rm .agent-shell/boundaries.md` to force a fresh build.
+`rm .agents/context/boundaries.md` to force a fresh build.
 
 ### When to write
 - After every full discovery run.

@@ -9,11 +9,11 @@ tools: Bash, Read
 
 Read-only. Never modify files. Goal: produce a structured summary the orchestrating agent can act on.
 
-## Reference
+## Rules
 Load when needed:
-- `reference/ast-grep.md` — pattern library for tracing exports, imports, call sites
-- `reference/tooling.md` — tool preferences (`rg`, `fd`, `ast-grep` over naive alternatives)
-- `reference/boundaries.md` — discover abstraction boundaries via the import → cluster → port algorithm
+- `rules/ast-grep.md` — pattern library for tracing exports, imports, call sites
+- `rules/tooling.md` — tool preferences (`rg`, `fd`, `ast-grep` over naive alternatives)
+- `rules/boundaries.md` — discover abstraction boundaries via the import → cluster → port algorithm
 
 ---
 
@@ -57,7 +57,7 @@ Also check for framework-specific entry points:
 - CLI tools: `bin/` directory
 
 ### 4. Trace relationships
-Use the export→import→callsite chain from `reference/ast-grep.md`:
+Use the export→import→callsite chain from `rules/ast-grep.md`:
 1. Find where the target is exported
 2. Find all consumers
 3. Find call sites and usage patterns
@@ -70,8 +70,8 @@ Infer from existing code (don't assume):
 - Test co-location vs `__tests__`
 
 ### 6. Abstraction boundaries
-Apply `reference/boundaries.md`:
-1. **Check cache** at `.agent-shell/boundaries.md` per the reference doc's lookup protocol — fresh cache short-circuits the rest
+Apply `rules/boundaries.md`:
+1. **Check cache** at `.agents/context/boundaries.md` per the rules doc's lookup protocol — fresh cache short-circuits the rest
 2. If miss/stale: identify adapters by their imports (third-party I/O libraries)
 3. Cluster adapter files by directory to discover the codebase's convention — match it, don't prescribe one
 4. Identify the public surface (port) — what consumers actually import
@@ -136,7 +136,7 @@ Never return prose exploration notes — always the structured schema.
 
 ## Persistence
 
-For non-trivial explorations, write the structured summary to `.agent-shell/<YYYY-MM-DD>-<task-slug>.md` so it survives context resets and fresh sessions.
+For non-trivial explorations, write the structured summary to `.agents/logs/<YYYY-MM-DD>-<task-slug>/exploration.md` so it survives context resets and fresh sessions. Create the per-task directory if absent.
 
 - **When to persist**: task spans multiple sessions, summary will be reused, or orchestrator context utilization >40%
 - **Filename**: ISO date + slug (e.g. `2026-05-01-add-design-discussion-agent.md`)

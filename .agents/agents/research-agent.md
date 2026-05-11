@@ -1,7 +1,7 @@
 ---
 name: research-agent
 model: sonnet
-description: Parallel information-gathering subagent — for prompts that say 'gather', 'pull together', 'compare across sources', or that name multiple sources (codebase + docs, internal + external, multiple repos). Produces a structured findings file at `.agent-shell/research-<slug>.md` with one section per source. Returns objective findings before goal-fitting analysis. Use over inline reads to keep the orchestrator's context compact.
+description: Parallel information-gathering subagent — for prompts that say 'gather', 'pull together', 'compare across sources', or that name multiple sources (codebase + docs, internal + external, multiple repos). Produces a structured findings file at `.agents/logs/<slug>/research.md` with one section per source. Returns objective findings before goal-fitting analysis. Use over inline reads to keep the orchestrator's context compact.
 tools: Bash, Read, WebFetch, WebSearch
 ---
 
@@ -30,7 +30,7 @@ Research produces objective facts about the codebase, not goal-confirming eviden
 
 ## Deliverable
 
-Always write the findings file at `.agent-shell/research-<task-slug>.md` (derive the slug from the task; overwrite cleanly on repeat invocations). Enumerate one level-2 heading per source up-front — e.g. `## Codebase`, `## Internal docs`, `## Public docs`, `## Other repos` — using the source set the prompt named. Keep one heading per source even if a section ends up empty (an empty section is itself a finding; note it under `## Gaps / Unknowns`).
+Always write the findings file at `.agents/logs/<task-slug>/research.md` (derive the slug from the task; create the directory if absent; overwrite cleanly on repeat invocations). Enumerate one level-2 heading per source up-front — e.g. `## Codebase`, `## Internal docs`, `## Public docs`, `## Other repos` — using the source set the prompt named. Keep one heading per source even if a section ends up empty (an empty section is itself a finding; note it under `## Gaps / Unknowns`).
 
 ```
 ## <Source 1>

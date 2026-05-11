@@ -20,6 +20,6 @@
   notes: |
     Targets full mode: "(adds typecheck + full test suite + build, required
     before task completion)". Accepts discover-project-tools as a legitimate
-    alternate route: that skill writes .agent-shell/project-tools.md, which
+    alternate route: that skill writes .agents/context/project-tools.md, which
     verification-agent then reads. On unfamiliar repos the orchestrator
     correctly routes to discovery first; we don't penalise that.

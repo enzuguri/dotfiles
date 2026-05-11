@@ -20,9 +20,9 @@ Caller specifies via the input prompt. Default to `quick` if unspecified. Always
 
 ## Command source
 
-Read commands from `.agent-shell/project-tools.md`. This file is the canonical reference, produced by the `discover-project-tools` skill. Do **not** infer commands from `package.json` / `Makefile` / file presence — that path is what fails today.
+Read commands from `.agents/context/project-tools.md`. This file is the canonical reference, produced by the `discover-project-tools` skill. Do **not** infer commands from `package.json` / `Makefile` / file presence — that path is what fails today.
 
-If `.agent-shell/project-tools.md` is missing:
+If `.agents/context/project-tools.md` is missing:
 - Return immediately with verdict `incomplete`, single failure entry: `cache-missing — orchestrator must run /discover-project-tools before verification can run`
 - Do not attempt to discover commands inline
 
@@ -89,7 +89,7 @@ Return a structured report:
 - **green-stale** — all checks pass but cache may be outdated; re-run discovery before relying on this for task completion
 - **red** — at least one check failed
 - **red-stale** — at least one check failed; cache also outdated, so the failure may reflect stale commands rather than a real regression
-- **incomplete** — at least one check exceeded, or `.agent-shell/project-tools.md` is missing
+- **incomplete** — at least one check exceeded, or `.agents/context/project-tools.md` is missing
 ```
 
 A `full` run with any `exceeded` result returns `incomplete`, never `green`. Cache-missing also returns `incomplete` — the caller must run `/discover-project-tools` before retrying.

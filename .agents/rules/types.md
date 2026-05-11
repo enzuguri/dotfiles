@@ -181,7 +181,7 @@ Right granularity: "things that change together stay together; things that vary 
 
 - **Parsing produces branded values.** The parser is the construction chokepoint that enforces the brand's invariant.
 - **Brands can witness capabilities.** A `WriteHandle` brand on a resource proves write access; passing it is the type-level grant.
-- **Ports** (per `reference/boundaries.md`) are best specified as capability intersections — not a monolithic `UserPort` but the minimum capabilities each consumer needs.
+- **Ports** (per `rules/boundaries.md`) are best specified as capability intersections — not a monolithic `UserPort` but the minimum capabilities each consumer needs.
 
 ---
 

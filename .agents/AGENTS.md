@@ -2,7 +2,7 @@
 
 Non-negotiable rules. Listed first because LLMs silently skip constraints buried late in long prompts.
 
-- **`verification-agent` after every code edit.** `quick` mode (lint + format + targeted tests) for mid-iteration; `full` mode (adds typecheck + full test suite + build) is non-negotiable before declaring any task complete. Verification reads commands from `.agent-shell/project-tools.md` — if missing, run `/discover-project-tools` first.
+- **`verification-agent` after every code edit.** `quick` mode (lint + format + targeted tests) for mid-iteration; `full` mode (adds typecheck + full test suite + build) is non-negotiable before declaring any task complete. Verification reads commands from `.agents/context/project-tools.md` — if missing, run `/discover-project-tools` first.
 - **`explore-agent` before editing files not already read in this conversation.**
 - **Apply `code-style` reference before any Write/Edit.**
 - **No destructive git ops without confirmation** (`reset --hard`, `push --force`, `branch -D`, `clean -fd`).
@@ -16,10 +16,10 @@ Frontier LLMs lose coherence past ~150–200 instructions or when context fills 
 
 - **Target**: under 40% context utilization
 - **Ceiling**: at 60%, persist progress and start a fresh session
-- **Persist via**: structured summary to `.agent-shell/<YYYY-MM-DD>-<task-slug>.md`
+- **Persist via**: structured summary to `.agents/logs/<YYYY-MM-DD>-<task-slug>/exploration.md`
 - **Resume via**: load only the summary, never the prior transcript
 - Sub-agents are context firewalls, not personas — delegate research, exploration, verification to scoped agents whose findings return as compact summaries
-- Coordinate between agents through filesystem artifacts (`.agent-shell/`, `~/.config/`), not through the orchestrator's context
+- Coordinate between agents through filesystem artifacts (`.agents/`, `~/.config/`), not through the orchestrator's context
 
 ---
 
@@ -56,7 +56,7 @@ Invoke when: task involves any git operations, PR management, or CI status check
 → See `agents/git-agent.md`
 
 ## `verification-agent`
-Handles: lint, formatter check, test, and build verification. Runs all checks in parallel. Reads commands from `.agent-shell/project-tools.md` — does not infer them. Returns `incomplete` if that file is missing; orchestrator must run `/discover-project-tools` first.
+Handles: lint, formatter check, test, and build verification. Runs all checks in parallel. Reads commands from `.agents/context/project-tools.md` — does not infer them. Returns `incomplete` if that file is missing; orchestrator must run `/discover-project-tools` first.
 → See `agents/verification-agent.md`
 
 ## `research-agent`
@@ -75,9 +75,9 @@ Invoke when: starting non-trivial implementation, before writing a plan or any c
 
 ---
 
-# Reference
+# Rules
 
-Shared guidance applied to all tasks. The summaries below are the operational content; full text lives in `~/.claude/reference/<name>.md` and can be read on demand.
+Shared guidance applied to all tasks. The summaries below are the operational content; full text lives in `~/.claude/rules/<name>.md` and can be read on demand.
 
 | Name | Scope |
 |---|---|
@@ -89,4 +89,4 @@ Shared guidance applied to all tasks. The summaries below are the operational co
 | `project-conventions` | Pre-task orientation checklist; match existing naming, imports, error handling, and test structure — never introduce new conventions |
 | `error-handling` | Check exit codes, verify outputs after writes/API calls/builds, dry-run before full execution |
 
-> Note: these are reference fragments, not invocable harness skills. The `skills/` directory is reserved for real skills (e.g., `discover-project-tools`).
+> Note: these are rules fragments (behavioural guidance), not invocable harness skills. The `skills/` directory is reserved for real skills (e.g., `discover-project-tools`).

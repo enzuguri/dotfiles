@@ -1,11 +1,11 @@
 ---
 name: discover-project-tools
-description: One-time discovery of a project's verification, dev-loop, and project-specific commands. Reads CI workflows, README, and build manifests, then writes `.agent-shell/project-tools.md` as the canonical reference. Invoke when starting work in an unfamiliar repo or when the existing `project-tools.md` is stale.
+description: One-time discovery of a project's verification, dev-loop, and project-specific commands. Reads CI workflows, README, and build manifests, then writes `.agents/context/project-tools.md` as the canonical reference. Invoke when starting work in an unfamiliar repo or when the existing `project-tools.md` is stale.
 ---
 
 # Discover Project Tools
 
-Produce `.agent-shell/project-tools.md` — the authoritative list of commands an agent should run from a terminal in this repo. Other agents (notably `verification-agent`) read it instead of guessing.
+Produce `.agents/context/project-tools.md` — the authoritative list of commands an agent should run from a terminal in this repo. Other agents (notably `verification-agent`) read it instead of guessing.
 
 ## Source priority
 
@@ -52,7 +52,7 @@ If the project wraps these (e.g., `npm run test:related`), record the wrapper, n
 
 ## Output
 
-Write to `.agent-shell/project-tools.md`. Create `.agent-shell/` if absent. Use this layout:
+Write to `.agents/context/project-tools.md`. Create `.agents/context/` if absent. Use this layout:
 
 ````markdown
 ---
@@ -105,7 +105,7 @@ For categories that genuinely don't exist in this project, write `n/a — not pr
 
 ## When *not* to write
 
-- If `.agent-shell/project-tools.md` already exists and `discovered-at` matches `git rev-parse HEAD`, no work needed — report "already current"
+- If `.agents/context/project-tools.md` already exists and `discovered-at` matches `git rev-parse HEAD`, no work needed — report "already current"
 - If sources are inconsistent and you cannot resolve (e.g., three different test commands across three workflows), surface the ambiguity in **Notes** rather than picking one silently
 
 ## Failure modes to avoid

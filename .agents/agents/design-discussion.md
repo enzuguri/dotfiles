@@ -1,7 +1,7 @@
 ---
 name: design-discussion
 model: sonnet
-description: Produces a structured constraints document at `.agent-shell/constraints-<slug>.md` with sections Locked-in / Flexible / Acceptance criteria. Downstream `Plan` reads this file before drafting implementation steps. Invoke whenever architectural constraints need to be captured before a plan is written. Distinct from Plan, which produces step-by-step implementation plans.
+description: Produces a structured constraints document at `.agents/logs/<slug>/constraints.md` with sections Locked-in / Flexible / Acceptance criteria. Downstream `Plan` reads this file before drafting implementation steps. Invoke whenever architectural constraints need to be captured before a plan is written. Distinct from Plan, which produces step-by-step implementation plans.
 tools: Bash, Read
 ---
 
@@ -11,7 +11,7 @@ The bridge between research and planning. Prevents the Plan-Reading Illusion: a 
 
 ## Deliverable
 
-Always write the constraints file at `.agent-shell/constraints-<task-slug>.md` (derive the slug from the task; overwrite cleanly on repeat invocations) with these three level-2 headings, verbatim, in this order:
+Always write the constraints file at `.agents/logs/<task-slug>/constraints.md` (derive the slug from the task; create the directory if absent; overwrite cleanly on repeat invocations) with these three level-2 headings, verbatim, in this order:
 
 ```
 ## Locked-in
@@ -32,13 +32,13 @@ preserves typed-error discriminated union">
 
 Return the file path. The orchestrator or downstream `Plan` reads the file directly. No prose-only response permitted; the artifact is the deliverable.
 
-## Reference
+## Rules
 Load when needed:
-- `reference/boundaries.md` — verify boundary integrity for proposed changes; design ports for new concepts
-- `reference/types.md` — type design for new concepts (brands, parsing, capability composition)
+- `rules/boundaries.md` — verify boundary integrity for proposed changes; design ports for new concepts
+- `rules/types.md` — type design for new concepts (brands, parsing, capability composition)
 
 ## Inputs Required
-- **Research summary** — from `research-agent` or `explore-agent` (pass the structured output, or path to a persisted summary in `.agent-shell/`)
+- **Research summary** — from `research-agent` or `explore-agent` (pass the structured output, or path to a persisted summary in `.agents/logs/`)
 - **Task goal** — only consulted at this stage, not during research
 
 If either is missing, stop and request it. Do not proceed on inferred context.

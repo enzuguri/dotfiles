@@ -158,10 +158,10 @@ evals/
 ## Known limitations
 
 - **Cold-context only.** The eval simulates routing without prior conversation context. Real usage may route differently when the orchestrator has hours of context loaded.
-- **Routing-only.** No assertions on what the agent does once invoked — that requires sandboxed execution and is documented as future work in `.agent-shell/2026-05-07-evals-harness.md`.
+- **Routing-only.** No assertions on what the agent does once invoked — that requires sandboxed execution and is documented as future work in `.agents/logs/2026-05-07-evals-harness/exploration.md`.
 - **Sonnet-pinned by default.** Other models may route differently. The `--model` flag exists but other-model results have not been baselined.
 - **Skill machinery underexercised.** Skill-routing cases require well-defined explicit triggers; the seed dataset focuses on agent routing.
 
 ## Status & history
 
-Latest baseline: `closed 18/26 (69%) | open 19/26 (73%)` — see `.agent-shell/2026-05-08-routing-eval-findings.md` for the breakdown of failures and proposed description tightening.
+Latest baseline: `closed 18/26 (69%) | open 19/26 (73%)` — see `.agents/logs/2026-05-08-routing-eval-findings/exploration.md` for the breakdown of failures and proposed description tightening.

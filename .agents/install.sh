@@ -8,7 +8,7 @@ declare -A LINKS=(
   ["$DOTFILES_DIR/AGENTS.md"]="$CLAUDE_DIR/CLAUDE.md"
   ["$DOTFILES_DIR/agents"]="$CLAUDE_DIR/agents"
   ["$DOTFILES_DIR/skills"]="$CLAUDE_DIR/skills"
-  ["$DOTFILES_DIR/reference"]="$CLAUDE_DIR/reference"
+  ["$DOTFILES_DIR/rules"]="$CLAUDE_DIR/rules"
 )
 
 for src in "${!LINKS[@]}"; do
