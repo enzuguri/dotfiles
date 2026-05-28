@@ -1,6 +1,6 @@
 ---
 name: slack-insights
-model: sonnet
+model: inherit
 description: Peer interest mining, channel digest, and period rollup. Fetches Slack messages and produces daily reports, or synthesises existing reports into a period summary — no Slack access needed for rollups.
 tools: Bash, Read, Write, mcp__plugin_slack_slack__slack_search_public, mcp__plugin_slack_slack__slack_search_channels
 ---

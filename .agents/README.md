@@ -1,6 +1,6 @@
 # Agent Harness
 
-A portable Claude Code configuration. `install.sh` symlinks the contents of this directory into `~/.claude/`, so the same harness travels with the dotfiles repo across machines and is version-controlled like any other config.
+A portable agent configuration for Claude Code, Cursor, and other Agent Skills–compatible CLIs. `install.sh` symlinks harness content into each tool's home directory and syncs top-level instructions where the tool expects them, so the same setup travels with the dotfiles repo across machines and is version-controlled like any other config.
 
 This README is the entry point for colleagues. If you only want to know how to install it, jump to [Install](#install). If you want to understand why it is shaped this way, read the rest.
 
@@ -66,8 +66,9 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 
 ```
 .agents/
-├── AGENTS.md          → symlinked to ~/.claude/CLAUDE.md (top-level instructions)
-├── agents/            → symlinked to ~/.claude/agents/   (sub-agent definitions)
+├── AGENTS.md          → Claude: ~/.claude/CLAUDE.md
+│                      → Cursor: user rules (state.vscdb)
+├── agents/            → ~/.claude/agents/ and ~/.cursor/agents/
 │   ├── research-agent.md
 │   ├── explore-agent.md
 │   ├── design-discussion.md
@@ -75,7 +76,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── git-agent.md
 │   ├── slack-insights.md
 │   └── bourgeoisie-reviewer.md
-├── rules/             → symlinked to ~/.claude/rules/    (behavioural guidance fragments)
+├── rules/             → ~/.claude/rules/ and ~/.cursor/rules/
 │   ├── code-style.md
 │   ├── types.md
 │   ├── boundaries.md
@@ -83,7 +84,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── error-handling.md
 │   ├── tooling.md
 │   └── ast-grep.md
-├── skills/            → symlinked to ~/.claude/skills/   (invocable harness skills)
+├── skills/            → ~/.claude/skills/ and ~/.cursor/skills/
 │   └── discover-project-tools/
 └── install.sh
 ```
@@ -148,9 +149,31 @@ If you ever add per-project ADRs or learned user preferences, those would belong
 ./install.sh
 ```
 
-The script symlinks `AGENTS.md`, `agents/`, `rules/`, and `skills/` into `~/.claude/`. Existing files at those paths are backed up with a timestamp; existing symlinks pointing to the same target are left alone.
+The script:
 
-Reverse with `rm ~/.claude/{CLAUDE.md,agents,rules,skills}` — only symlinks are touched, and any pre-install files survived as `*.bak.<timestamp>`.
+1. **Symlinks** `agents/`, `rules/`, and `skills/` into both `~/.claude/` and `~/.cursor/`
+2. **Symlinks** `AGENTS.md` → `~/.claude/CLAUDE.md` (Claude Code global instructions)
+3. **Syncs** `AGENTS.md` into Cursor **User Rules** via SQLite (`aicontext.personalContext` in `state.vscdb`)
+
+Existing files at target paths are backed up with a timestamp; symlinks already pointing at the harness are left alone.
+
+| Content | Claude Code | Cursor |
+|---|---|---|
+| Top-level instructions | `~/.claude/CLAUDE.md` | User Rules in `state.vscdb` |
+| Sub-agents | `~/.claude/agents/` | `~/.cursor/agents/` |
+| Rules (read on demand) | `~/.claude/rules/` | `~/.cursor/rules/` |
+| Skills | `~/.claude/skills/` | `~/.cursor/skills/` |
+
+Cursor also reads `~/.claude/agents/` and `~/.claude/skills/` for compatibility, but first-class `~/.cursor/` symlinks are installed explicitly.
+
+**After install:** restart Cursor so user rules reload. On Enterprise accounts, Cursor may sync user rules from the cloud — re-run `./install.sh` after editing `AGENTS.md` if the UI overwrites local changes.
+
+**Uninstall:** remove the symlinks only — pre-install files survive as `*.bak.<timestamp>`:
+
+```bash
+rm ~/.claude/{CLAUDE.md,agents,rules,skills}
+rm ~/.cursor/{agents,rules,skills}
+```
 
 Note: `context/` and `logs/` are *not* symlinked. They appear inside each consumer repo's own `.agents/` directory at runtime.
 

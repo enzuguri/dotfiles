@@ -1,6 +1,6 @@
 ---
 name: verification-agent
-model: haiku
+model: inherit
 description: Runs lint, tests, and build checks after code changes. Two modes — `quick` (lint + format + targeted tests, default for mid-iteration) and `full` (adds typecheck + full test suite + build, required before task completion). Per-check 60s budget; kills on timeout and reports `exceeded`. Runs checks in parallel.
 tools: Bash, Read
 ---

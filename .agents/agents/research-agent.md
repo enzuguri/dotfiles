@@ -1,6 +1,6 @@
 ---
 name: research-agent
-model: sonnet
+model: inherit
 description: Parallel information-gathering subagent — for prompts that say 'gather', 'pull together', 'compare across sources', or that name multiple sources (codebase + docs, internal + external, multiple repos). Produces a structured findings file at `.agents/logs/<slug>/research.md` with one section per source. Returns objective findings before goal-fitting analysis. Use over inline reads to keep the orchestrator's context compact.
 tools: Bash, Read, WebFetch, WebSearch
 ---

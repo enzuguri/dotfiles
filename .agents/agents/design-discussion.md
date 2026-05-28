@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-model: sonnet
+model: inherit
 description: Produces a structured constraints document at `.agents/logs/<slug>/constraints.md` with sections Locked-in / Flexible / Acceptance criteria. Downstream `Plan` reads this file before drafting implementation steps. Invoke whenever architectural constraints need to be captured before a plan is written. Distinct from Plan, which produces step-by-step implementation plans.
 tools: Bash, Read
 ---

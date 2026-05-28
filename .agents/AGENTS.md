@@ -77,7 +77,7 @@ Invoke when: starting non-trivial implementation, before writing a plan or any c
 
 # Rules
 
-Shared guidance applied to all tasks. The summaries below are the operational content; full text lives in `~/.claude/rules/<name>.md` and can be read on demand.
+Shared guidance applied to all tasks. The summaries below are the operational content; full text lives in `~/.claude/rules/<name>.md` or `~/.cursor/rules/<name>.md` (same files, symlinked from dotfiles) and can be read on demand.
 
 | Name | Scope |
 |---|---|
