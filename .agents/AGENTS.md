@@ -55,6 +55,15 @@ Handles: committing, branch naming, rebasing, amend/force-push, CI/CD monitoring
 Invoke when: task involves any git operations, PR management, or CI status checks.
 → See `agents/git-agent.md`
 
+**PR creation is decomposed — do not hand the whole flow to a wholesale PR-orchestration skill by default.** The orchestrator owns the sequence: `git-agent` does mechanics (branch, scoped fetch, commit, push); if a PR-description/summarization capability is available in this environment (a skill or read-only bundled agent), invoke it to render the PR body and pass that body to `git-agent` verbatim, otherwise `git-agent` authors the body itself. Route the *entire* flow to a wholesale PR skill only when the user explicitly asks for the full workflow (background review, CI monitoring). Mechanics: `rules/pr-authoring.md`.
+
+## `review-agent`
+Handles: read-only code review behind a context firewall. Runs a preloaded review skill when available, else a built-in checklist; returns compact severity-tagged findings. Never posts to GitHub, never edits.
+Invoke when: you need code-review findings on a diff / PR / local changes without polluting orchestrator context.
+→ See `agents/review-agent.md`
+
+**Code review is decomposed — default to the firewall.** For a standard code review, delegate to `review-agent` (methodology via skill-preload + fallback; findings return as a compact summary). Route the *entire* flow to a wholesale review capability at orchestrator level only when it fans out its own agents or has side-effects — `/code-review` (parallel fan-out + GitHub comment), `security-review`, any `--comment`/`--fix` run, or a skill's full context-gathering path — because those cannot nest inside the firewall. Voice/presentation of findings is handled separately, never the reviewer's job. Mechanics: `rules/reviewing.md`.
+
 ## `verification-agent`
 Handles: lint, formatter check, test, and build verification. Runs all checks in parallel. Reads commands from `.agents/context/project-tools.md` — does not infer them. Returns `incomplete` if that file is missing; orchestrator must run `/discover-project-tools` first.
 → See `agents/verification-agent.md`
@@ -88,5 +97,7 @@ Shared guidance applied to all tasks. The summaries below are the operational co
 | `boundaries` | Abstraction boundary integrity — implementation details (libraries, transport, storage) must not leak across call-hierarchy boundaries. Discover existing conventions; never prescribe ports/adapters naming |
 | `project-conventions` | Pre-task orientation checklist; match existing naming, imports, error handling, and test structure — never introduce new conventions |
 | `error-handling` | Check exit codes, verify outputs after writes/API calls/builds, dry-run before full execution |
+| `pr-authoring` | Capability-first PR-creation routing: `git-agent` owns mechanics; borrow a PR-description capability for the body when present; wholesale PR skill only on explicit request |
+| `reviewing` | Capability-first code-review routing: firewall `review-agent` for default reviews (skill-preload + fallback); wholesale review skills (fan-out / GitHub side-effects) at orchestrator level; voice is a separate layer |
 
 > Note: these are rules fragments (behavioural guidance), not invocable harness skills. The `skills/` directory is reserved for real skills (e.g., `discover-project-tools`).
