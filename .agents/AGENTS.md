@@ -62,7 +62,12 @@ Handles: read-only code review behind a context firewall. Runs a preloaded revie
 Invoke when: you need code-review findings on a diff / PR / local changes without polluting orchestrator context.
 → See `agents/review-agent.md`
 
-**Code review is decomposed — default to the firewall.** For a standard code review, delegate to `review-agent` (methodology via skill-preload + fallback; findings return as a compact summary). Route the *entire* flow to a wholesale review capability at orchestrator level only when it fans out its own agents or has side-effects — `/code-review` (parallel fan-out + GitHub comment), `security-review`, any `--comment`/`--fix` run, or a skill's full context-gathering path — because those cannot nest inside the firewall. Voice/presentation of findings is handled separately, never the reviewer's job. Mechanics: `rules/reviewing.md`.
+**Code review is decomposed — default to the firewall.** For a standard code review, delegate to `review-agent` (methodology via skill-preload + fallback; findings return as a compact summary). Route the *entire* flow to a wholesale review capability at orchestrator level only when it fans out its own agents or has side-effects — `/code-review` (parallel fan-out + GitHub comment), `security-review`, any `--comment`/`--fix` run, or a skill's full context-gathering path — because those cannot nest inside the firewall. Voice/presentation of findings is handled separately by `re-voicer`, never the reviewer's job. Mechanics: `rules/reviewing.md`.
+
+## `re-voicer`
+Handles: content-preserving re-voicing of supplied text in a selected persona (voice packs in `voices/<name>.md`). Changes tone only — never adds, removes, or alters facts/severity. `Read`-only, so genuinely sandboxed. Relay its output to the user verbatim.
+Invoke when: you want existing output (e.g. `review-agent` findings, a summary) re-rendered in a voice — pass the source text and a voice name.
+→ See `agents/re-voicer.md`
 
 ## `verification-agent`
 Handles: lint, formatter check, test, and build verification. Runs all checks in parallel. Reads commands from `.agents/context/project-tools.md` — does not infer them. Returns `incomplete` if that file is missing; orchestrator must run `/discover-project-tools` first.

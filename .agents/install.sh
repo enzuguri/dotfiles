@@ -108,9 +108,11 @@ declare -a SYMLINKS=(
   "$DOTFILES_DIR/agents|$CLAUDE_DIR/agents"
   "$DOTFILES_DIR/skills|$CLAUDE_DIR/skills"
   "$DOTFILES_DIR/rules|$CLAUDE_DIR/rules"
+  "$DOTFILES_DIR/voices|$CLAUDE_DIR/voices"
   "$DOTFILES_DIR/agents|$CURSOR_DIR/agents"
   "$DOTFILES_DIR/skills|$CURSOR_DIR/skills"
   "$DOTFILES_DIR/rules|$CURSOR_DIR/rules"
+  "$DOTFILES_DIR/voices|$CURSOR_DIR/voices"
 )
 
 echo "Installing agent harness symlinks..."

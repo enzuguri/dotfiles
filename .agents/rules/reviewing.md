@@ -29,10 +29,13 @@ asks for that depth or those side-effects:
   spawns a subagent (e.g. `miro-way:review` + `additional-context-search`).
 
 ## Voice is separate
-`review-agent` emits neutral findings. Re-voicing or re-phrasing them (a persona
-renderer, an exec summary, a terse digest) is an independent presentation step
-applied to the findings afterward — never folded into the methodology agent. A
-re-voicing utility may change tone but must never alter factual content.
+`review-agent` emits neutral findings. Re-voicing or re-phrasing them is an
+independent presentation step handled by the `re-voicer` agent: pipe the findings
+to `re-voicer` with a voice name (e.g. `gentry`) to re-render them in a persona.
+It is content-preserving — it may change tone but must never add, drop, or alter
+a finding or its severity. Never fold voice into the methodology agent. Because a
+re-voiced finding loses nothing factual, severity tags and `file:line` anchors
+survive the re-tone.
 
 ## Why decomposed
 Same rationale as `pr-authoring`: keep methodology behind a firewall (compact

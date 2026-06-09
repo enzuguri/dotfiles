@@ -74,8 +74,9 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── design-discussion.md
 │   ├── verification-agent.md
 │   ├── git-agent.md
-│   ├── slack-insights.md
-│   └── bourgeoisie-reviewer.md
+│   ├── review-agent.md
+│   ├── re-voicer.md
+│   └── slack-insights.md
 ├── rules/             → ~/.claude/rules/ and ~/.cursor/rules/
 │   ├── code-style.md
 │   ├── types.md
@@ -83,9 +84,13 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── project-conventions.md
 │   ├── error-handling.md
 │   ├── tooling.md
-│   └── ast-grep.md
+│   ├── ast-grep.md
+│   ├── pr-authoring.md
+│   └── reviewing.md
 ├── skills/            → ~/.claude/skills/ and ~/.cursor/skills/
 │   └── discover-project-tools/
+├── voices/            → ~/.claude/voices/ and ~/.cursor/voices/
+│   └── gentry.md
 └── install.sh
 ```
 

@@ -67,7 +67,7 @@ For plugin/built-in agents the namespaced form is what the orchestrator emits (e
 ### Tips
 
 - Don't write *"use the X agent to do Y"* — that's a tautology. Write the prompt as a real user would.
-- For novelty agents (e.g. `bourgeoisie-reviewer`), include the explicit stylistic trigger in the prompt.
+- For agents invoked by explicit instruction rather than topic (e.g. `re-voicer` with a named voice), include that explicit trigger/parameter in the prompt.
 - For `expected: null`, use trivial prompts — greetings, factual recall, acknowledgements.
 - Always fill `notes:`. Future failures need the context.
 - IDs must be unique across the whole `cases/` tree.
