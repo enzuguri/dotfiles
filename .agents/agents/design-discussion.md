@@ -32,10 +32,11 @@ preserves typed-error discriminated union">
 
 Return the file path. The orchestrator or downstream `Plan` reads the file directly. No prose-only response permitted; the artifact is the deliverable.
 
-## Rules
-Load when needed:
-- `rules/boundaries.md` — verify boundary integrity for proposed changes; design ports for new concepts
-- `rules/types.md` — type design for new concepts (brands, parsing, capability composition)
+## References
+`rules/` is already in your context — never re-read it. The files below are **not**
+in context. `Read` each one when its cue fires, not pre-emptively:
+- `~/.claude/references/boundaries.md` — before verifying boundary integrity or designing a port for a new concept
+- `~/.claude/references/types.md` — before specifying a new type (brands, parse-don't-validate, capability composition)
 
 ## Inputs Required
 - **Research summary** — from `research-agent` or `explore-agent` (pass the structured output, or path to a persisted summary in `.agents/logs/`)

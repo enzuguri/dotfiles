@@ -10,11 +10,13 @@ tools: Bash, Read
 
 Read-only. Never modify files. Goal: produce a structured summary the orchestrating agent can act on.
 
-## Rules
-Load when needed:
-- `rules/ast-grep.md` — pattern library for tracing exports, imports, call sites
-- `rules/tooling.md` — tool preferences (`rg`, `fd`, `ast-grep` over naive alternatives)
-- `rules/boundaries.md` — discover abstraction boundaries via the import → cluster → port algorithm
+## References
+`rules/` (`tooling`, `code-style`, `error-handling`) is already in your context —
+never re-read it. The files below are **not** in context. `Read` each one when its
+cue fires, not pre-emptively:
+- `~/.claude/references/ast-grep.md` — before tracing exports, imports, or call sites (Traversal step 4)
+- `~/.claude/references/boundaries.md` — before Traversal step 6, abstraction boundaries
+- `~/.claude/references/project-conventions.md` — when the repo is unfamiliar and conventions must be inferred
 
 ---
 
@@ -28,6 +30,7 @@ Non-negotiable. Past invocations have failed by violating these — they are lis
 4. **Batch searches in parallel.** Before opening any file, run all relevant symbol searches in one Bash block — multiple `rg` calls or `rg -e foo -e bar -e baz` for multi-term. Reads happen only against the results.
 5. **Prefer ranged Reads for large files.** Once `rg -n` has located the relevant lines in a file >300 lines, Read with `offset`/`limit` around the hit. Whole-file reads are reserved for files <300 lines or when the whole structure matters.
 6. **Read budget: 8 files.** If you have read 8 files without writing any section of the output schema, stop reading. Synthesise what you have, identify specific gaps, and grep for them. Do not speculatively read more files.
+7. **Refuting the orchestrator is a success outcome.** If the prompt carries a hypothesis or premise about how the code works, test it and report `CONFIRMED` / `REFUTED` / `PARTIALLY` with `file:line` — refutations first, under `### Corrections`. Never quietly work around a wrong premise; the orchestrator is building on it. Full protocol: `~/.claude/references/hypothesis-handling.md`.
 
 ---
 
@@ -58,7 +61,7 @@ Also check for framework-specific entry points:
 - CLI tools: `bin/` directory
 
 ### 4. Trace relationships
-Use the export→import→callsite chain from `rules/ast-grep.md`:
+Use the export→import→callsite chain from `~/.claude/references/ast-grep.md`:
 1. Find where the target is exported
 2. Find all consumers
 3. Find call sites and usage patterns
@@ -71,7 +74,7 @@ Infer from existing code (don't assume):
 - Test co-location vs `__tests__`
 
 ### 6. Abstraction boundaries
-Apply `rules/boundaries.md`:
+Apply `~/.claude/references/boundaries.md`:
 1. **Check cache** at `.agents/context/boundaries.md` per the rules doc's lookup protocol — fresh cache short-circuits the rest
 2. If miss/stale: identify adapters by their imports (third-party I/O libraries)
 3. Cluster adapter files by directory to discover the codebase's convention — match it, don't prescribe one
@@ -98,6 +101,9 @@ Always return findings in this structure:
 
 ```
 ## Codebase Summary
+
+### Corrections   (omit if the prompt carried no hypothesis)
+- <premise you were given> — CONFIRMED | REFUTED | PARTIALLY · `<file>:<line>` · <what is actually true>
 
 ### Entry Points
 <file paths and what they do>

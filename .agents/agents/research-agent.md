@@ -14,6 +14,11 @@ Research produces objective facts about the codebase, not goal-confirming eviden
 - **Set aside the goal first.** Document what the code *is* — patterns, conventions, existing implementations — before considering what changes the task needs. Goal-fitting analysis belongs to the `design-discussion` stage.
 - **Surface inconvenient facts.** If existing code contradicts the assumed approach, report it plainly — don't soften or explain it away.
 - **Note what wasn't found.** Gaps are findings. Silent omissions become assumptions.
+- **Verify claims, don't inherit them.** A version string, coordinate, or flag name handed to you by the caller is a hypothesis until you resolve it against the actual source of truth. Probe it; don't assume the form you were given is the form that resolves.
+
+## Refuting the caller is a success outcome
+
+See `~/.claude/references/hypothesis-handling.md`. When the prompt contains a hypothesis, premise, or reasoning chain, treat attacking it as part of the deliverable, not an aside. Restate the claim you were given, then return `CONFIRMED` / `REFUTED` / `PARTIALLY — right conclusion, wrong mechanism` with `file:line` evidence. Findings that overturn the caller's premise go **first**, before anything that agrees with it — a premise the caller is still building on is the most expensive thing in the session to leave standing.
 
 ## Protocol
 1. **Enumerate first** — before launching any sub-searches, list ALL data points required for the deliverable

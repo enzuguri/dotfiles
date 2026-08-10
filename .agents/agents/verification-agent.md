@@ -32,6 +32,39 @@ If the file's `discovered-at` SHA differs from `git rev-parse HEAD` **and** any 
 
 Before executing any command, run the **Prerequisites** block from the cache (`nvm use`, venv activation, etc.) in the same shell session as the checks.
 
+## Verifier provenance — a wrong verifier is worse than none
+
+A verdict from an unvalidated or stale checker is more damaging than no verdict,
+because a green terminates investigation. Anything that produces a pass/fail is
+itself code and gets no free pass.
+
+**Always report what you actually ran.** For every command resolved from the cache
+that dispatches into a repo-local script (`./scripts/verify.sh`, `make check`, a
+bespoke `verify-*.sh`), include in the report:
+
+```
+### Verifier provenance
+- <script path> — mtime <ts>, sha256 <first 12 chars>, <tracked | untracked | dirty vs HEAD>
+```
+
+Rationale: running a stale copy of a checker is a silent failure with no signature
+at all. The hash is the cheapest possible defence and costs one command.
+
+**A first-run verifier is unproven.** If a script is being invoked for the first
+time, or is dirty vs `HEAD`, or was created in this session:
+
+1. Tag the verdict `unvalidated-verifier` regardless of its result.
+2. Do not report its pass/fail as `pass`/`fail` — report it as
+   `reported-pass (unvalidated)` / `reported-fail (unvalidated)`.
+3. Recommend the caller exercise it against **one known-good and one known-bad
+   input** before its verdict counts. A checker that has never returned FAIL on
+   something broken has not been shown to be able to.
+
+**Treat its FAILs as suspect first.** When a fresh verifier reports failures,
+confirm at least one independently (read the underlying signal yourself) before
+reporting it. False FAILs from new verification tooling are common, and they send
+the caller after phantom regressions.
+
 ## Targeted tests (quick mode)
 
 Targeted tests are tests scoped to the changed files, not the full suite. The caller should pass the changed file list; if absent, derive it from `git diff --name-only` (staged + unstaged) against the merge-base with the default branch.
@@ -84,15 +117,19 @@ Return a structured report:
 ### Cache staleness   (only if applicable)
 <list of source files changed since `discovered-at`, plus a note recommending re-running /discover-project-tools>
 
+### Verifier provenance   (only if a check dispatched into a repo-local script)
+<script path — mtime, sha256 prefix, tracked/untracked/dirty>
+
 ### Verdict
 - **green** — all checks pass, cache fresh
 - **green-stale** — all checks pass but cache may be outdated; re-run discovery before relying on this for task completion
 - **red** — at least one check failed
 - **red-stale** — at least one check failed; cache also outdated, so the failure may reflect stale commands rather than a real regression
 - **incomplete** — at least one check exceeded, or `.agents/context/project-tools.md` is missing
+- **unvalidated-verifier** — a check ran through a script that is new, dirty, or first-run; its result is reported but not trusted. Overrides `green`, never `red`.
 ```
 
-A `full` run with any `exceeded` result returns `incomplete`, never `green`. Cache-missing also returns `incomplete` — the caller must run `/discover-project-tools` before retrying.
+A `full` run with any `exceeded` result returns `incomplete`, never `green`. Cache-missing also returns `incomplete` — the caller must run `/discover-project-tools` before retrying. A `full` run that would be `green` but leaned on an unvalidated verifier returns `unvalidated-verifier` — it does not satisfy the pre-completion gate.
 
 ## Error handling
 - Check exit codes explicitly — don't assume success from absence of visible errors

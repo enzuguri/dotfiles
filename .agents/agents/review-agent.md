@@ -46,6 +46,19 @@ incomplete refactors and missing handling. Apply:
 - **Performance** — needless O(n²)+, unbounded or N+1 queries, leaked resources,
   redundant re-renders.
 - **Robustness** — partial refactors, broken invariants, dead code left behind.
+- **Silent degradation** — the highest-value category and the easiest to miss.
+  Any path that *continues* on failure instead of failing: a missing dependency
+  logged as non-fatal, a no-op fallback substituted for a real store when config
+  is absent, a broad `except`/`catch` that maps a specific error to a generic one
+  and drops the cause, an empty-result path indistinguishable from success. Ask
+  of every error branch: **if this degrades, does the caller find out?** If the
+  answer is no, that is at least SHOULD_FIX regardless of how unlikely the
+  trigger looks. Include exact-type error lookups (`map[type(e)]` rather than an
+  isinstance/MRO walk) — those throw *inside* the handler and replace the real
+  error.
+- **Assertions that prove nothing** — a check whose pass condition is the absence
+  of a negative (no error logged, no exception raised) rather than the presence of
+  a positive signal. See `rules/error-handling.md`.
 
 Ignore formatting, naming, and style — assume linters cover them. No praise, no
 preamble, no summary of what the code does.
@@ -60,6 +73,17 @@ The caller passes one of: a PR number, a branch range, or "local changes".
 
 If the caller specifies nothing, default to local changes (`git diff HEAD`).
 
+⚠️ **The caller's diff scope may be wrong.** `git status` shows the uncommitted
+working tree only; a PR is commits + working tree. Resolve the scope yourself from
+the merge-base and report the file/insertion counts you actually reviewed. If that
+differs materially from what the caller described, say so under `## Corrections` —
+a review of the wrong half of a PR reads exactly like a clean review.
+
+## Refuting the caller is a success outcome
+If the prompt carries a claim about the change ("this is a regression", "this test
+was passing", "the diff is 2 files"), test it and report the result — refutations
+before findings. Full protocol: `~/.claude/references/hypothesis-handling.md`.
+
 ## Severity
 | Tag | Criteria |
 |---|---|
@@ -69,6 +93,9 @@ If the caller specifies nothing, default to local changes (`git diff HEAD`).
 
 ## Output (findings only)
 ```
+## Corrections   (omit if the prompt carried no claim, or all claims held)
+- <claim you were given> — CONFIRMED | REFUTED · <what is actually true>
+
 ## 🔴 Blocking
 - **<file>:<line>** — <terse problem>
 

@@ -50,6 +50,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 | `design-discussion` | Takes research + goal, produces architectural constraints *before* a plan exists. The "brain surgery" stage. | `.agents/logs/<slug>/constraints.md` with `Locked-in / Flexible / Acceptance criteria` |
 | `Plan` (built-in) | Step-by-step implementation plan that satisfies the constraints document. | In-conversation plan |
 | `verification-agent` | Lint / format / typecheck / test / build in parallel. Reads commands from `.agents/context/project-tools.md`. | Structured pass/fail report with verdict |
+| `log-reader` | Read-only interpretation of logs and command output; also owns poll-until-ready waits. Assertion in, verdict + verbatim evidence out. Never touches process lifecycle. | Verdict with evidence lines |
 | `git-agent` | Commits, branches, rebases, PRs, CI monitoring. Never reads source — works from the prompt summary and `git log` only. | Commit / PR / status |
 | `slack-insights` | Peer-interest mining, channel digests, period rollups. Out-of-band but uses the same artifact pattern. | Daily/period reports under `~/.config/slack-insights/reports/` |
 
@@ -75,22 +76,38 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── verification-agent.md
 │   ├── git-agent.md
 │   ├── review-agent.md
+│   ├── log-reader.md
 │   ├── re-voicer.md
 │   └── slack-insights.md
 ├── rules/             → ~/.claude/rules/ and ~/.cursor/rules/
+│   │                    AUTO-LOADED in full into every session and every
+│   │                    subagent. Cost is paid per agent spawn — keep small.
 │   ├── code-style.md
+│   ├── error-handling.md
+│   └── tooling.md
+├── references/        → ~/.claude/references/ and ~/.cursor/references/
+│   │                    Symlinked ONLY so agents have a stable path to `Read`.
+│   │                    Verified not auto-loaded. Cited by cue, never bulk-read.
 │   ├── types.md
 │   ├── boundaries.md
 │   ├── project-conventions.md
-│   ├── error-handling.md
-│   ├── tooling.md
 │   ├── ast-grep.md
+│   ├── failure-modes.md
 │   ├── pr-authoring.md
-│   └── reviewing.md
+│   ├── reviewing.md
+│   ├── hypothesis-handling.md
+│   └── coordination-artifact.md
 ├── skills/            → ~/.claude/skills/ and ~/.cursor/skills/
 │   └── discover-project-tools/
 ├── voices/            → ~/.claude/voices/ and ~/.cursor/voices/
 │   └── gentry.md
+├── decisions/         (not symlinked — read by humans, not agents)
+│   ├── README.md              # format, bar for writing one, index
+│   ├── 0001-*.md              # numbered decision records
+│   └── open-questions.md      # theories not yet settled, with their tests
+├── scripts/           (not symlinked — run by humans, not agents)
+│   ├── README.md
+│   └── verdict-check.sh       # measurement feeding decisions/open-questions.md
 └── install.sh
 ```
 
@@ -108,13 +125,15 @@ At runtime, two more subdirectories appear in each consumer repo:
         └── exploration.md
 ```
 
-### Five kinds of content, deliberately separated
+### Seven kinds of content, deliberately separated
 
 - **Agents** (`agents/`) — context firewalls with their own prompts, tool allowlists, and protocols. Invoked via the Agent tool. Shipped with the harness.
 - **Rules** (`rules/`) — shared behavioural guidance loaded on demand by topic (e.g. `code-style` before any Write/Edit, `boundaries` when designing new modules). Summaries live in `AGENTS.md` so the orchestrator knows when each becomes relevant; full text is read only when the topic is in play. Not invocable as skills — they are prompt fragments. Shipped with the harness.
 - **Skills** (`skills/`) — actual invocable harness skills. Currently `discover-project-tools`, which writes `.agents/context/project-tools.md`. Shipped with the harness.
 - **Context** (`context/`) — generated reference data, per-repo, regenerated wholesale when stale. Useful to teammates because it encodes verification commands and codebase structure; commit decision is per-consumer-repo. `project-tools.md` and `boundaries.md` live here. Not shipped — produced at runtime.
 - **Logs** (`logs/`) — per-task handoff artifacts that pipeline stages drop for the next stage. One subdirectory per task slug. Typically gitignored — these are working memory for one task, not durable team context. Not shipped — produced at runtime.
+- **Decisions** (`decisions/`) — numbered records of why the harness is shaped this way, plus `open-questions.md` for theories still under test. Committed and shipped, but **deliberately not symlinked into any tool's home directory**: this is rationale for humans maintaining the harness, and loading it into every agent's context would be exactly the pollution the harness exists to prevent. See [Design decisions](#design-decisions).
+- **Scripts** (`scripts/`) — measurement and analysis tooling for maintaining the harness. Also not symlinked, and for a second reason on top of the one above: nothing here is agent-invoked. Kept separate from `decisions/` because a record is *read* and a script is *run* — different lifecycles, and a script parsing transcript internals can break silently in a way prose cannot.
 
 The distinction matters: if you treat rules fragments as skills, you get noisy skill lists and accidental invocations. If you bake rule text directly into each agent prompt, you duplicate guidance and drift between copies. If you commingle generated context with per-task scratch, you cannot decide what to commit.
 
@@ -127,6 +146,8 @@ The mental model:
 | Subdir | Lifecycle | Who writes | Who reads | Typical fate |
 |---|---|---|---|---|
 | `agents/` `rules/` `skills/` | Hand-authored, evolves slowly | Humans | Agents | Committed (shipped with the harness) |
+| `decisions/` | Hand-authored, append-only | Humans | Humans (read) | Committed, never symlinked |
+| `scripts/` | Hand-authored, evolves with the transcript format | Humans | Humans (run) | Committed, never symlinked |
 | `context/` | Generated, regenerated wholesale on staleness | Tooling (skills, discovery algorithms) | Agents | Commit decision per repo — useful to teammates, but auto-regenerable |
 | `logs/` | Generated per task, lives for the duration of that task | Pipeline-stage agents | Next pipeline stage; orchestrator on resume | Usually gitignored — working memory |
 
@@ -135,7 +156,29 @@ The `context/` vs `logs/` split is the key one to internalise:
 - `context/` is **snapshot reference data**. If you delete it, a skill or algorithm rebuilds it with no information loss. Similar in spirit to `dotagents`' `context/` slot for static schema/API data — ours is generated rather than hand-authored, but the consumer role is identical: read-only reference.
 - `logs/` is **per-task handoff scratch**. If you delete it mid-task, you lose pipeline-stage outputs and the next agent has to start over.
 
-If you ever add per-project ADRs or learned user preferences, those would belong in `.agents/memory/` per the dotagents spec — but we don't have any yet, so the directory isn't created.
+Note the difference between `decisions/` and the dotagents `memory/` slot. `decisions/` records why the **harness** is shaped this way — it ships with the harness and is read by humans. Per-project ADRs and learned user preferences are a different thing: they belong in `.agents/memory/` per the dotagents spec, are per-consumer-repo, and are agent-consumed. We don't have any of those yet, so that directory isn't created.
+
+---
+
+## Design decisions
+
+`decisions/` holds numbered records of the non-obvious calls: what was decided,
+the evidence, the alternatives rejected, and — the section that matters most —
+**what would change the decision**. That last part turns each record from a rule
+into a standing hypothesis with a falsifier, which is the same discipline
+`rules/hypothesis-handling.md` demands of agents, applied to ourselves.
+
+The bar: write one when a decision is non-obvious, contested, or expensive to
+reverse. If someone in six months might reasonably propose the opposite, record it.
+
+Several of the current records are backed by instrumented sessions rather than
+reasoning alone — the measurement commands are included so the numbers can be
+reproduced or challenged. `open-questions.md` is the companion: theories that
+sound right but are **not yet settled**, each with the test that would settle it.
+Keeping them there rather than in `rules/` is deliberate — it stops a plausible
+theory from quietly becoming policy.
+
+See [`decisions/README.md`](decisions/README.md) for the format and index.
 
 ---
 
