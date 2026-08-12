@@ -8,7 +8,11 @@ description: >-
   — and returns compact, severity-tagged findings. Pass the scope (PR number,
   branch range, or "local changes") and any task intent. Returns findings only;
   never posts to GitHub, edits files, or applies a presentation voice.
-tools: Bash, Read, Grep, Glob
+# Declaring `Bash` causes the harness to strip `Grep` and `Glob` — verified by probe
+# (`Bash, Read, Grep` grants only `Bash, Read`; `Read, Grep, Glob` grants all three).
+# Bash is required here for `git diff` / `gh pr diff` / default-branch detection, so
+# the search tools are unavailable by construction. Do not re-add them; search via `rg`.
+tools: Bash, Read
 skills:
   - miro-way:review
 ---
@@ -27,14 +31,42 @@ concern owned by the caller, never produced here.
   defines a step that spawns a subagent (e.g. linked-doc context gathering via
   an `additional-context-search` agent), **skip that step** and record it in the
   verdict's `omitted` tag. Inline context via `gh`/CLI is fine.
+- **No `Grep` or `Glob`.** You hold only `Bash` and `Read`. Search with `rg` and
+  `fd` through `Bash`. A methodology step written against `Grep`/`Glob` fails at
+  call time — translate it to `rg`/`fd` rather than skipping it.
 
 ## Methodology
-1. **If a review skill is preloaded**, follow it to produce findings — subject to
-   the firewall constraints above. Honour the caller's named sub-command if any
-   (`full`, `fast`, `security`, `perf`, `tests`, `docs`, `design`).
-2. **If no review skill is available**, apply the built-in checklist below.
-3. Either way, normalise the result to the Output format below — do not adopt a
-   preloaded skill's own output formatting if it diverges from it.
+
+**Decide which methodology you actually have — by positive signal, not by absence
+of a negative.** The name `miro-way:review` appearing in your context does **not**
+mean the methodology loaded. A bare command wrapper (a sub-command routing table,
+argument parsing, and a line like "execute the review skill workflow") frequently
+arrives in place of the skill body. That stub is *not* a methodology.
+
+You have the preloaded methodology only if you can see its **substance**: a
+severity taxonomy defined by the skill itself, and a step-by-step review process.
+If you cannot point to those, you do not have it — treat it as absent.
+
+1. **If the methodology substance is present**, follow it to produce findings —
+   subject to the firewall constraints above. Honour the caller's named
+   sub-command if any (`full`, `fast`, `security`, `perf`, `tests`, `docs`,
+   `design`).
+2. **If only a stub arrived, recover it yourself before falling back.** You have
+   `Read`. Try:
+   `~/.claude/plugins/marketplaces/miro-plugins/plugins/miro-way/skills/review/SKILL.md`
+   If it reads, that is the methodology — use it and report
+   `methodology: miro-way:review (read from disk)`. This path exists only where the
+   Miro plugin marketplace is installed; if the Read fails, that is expected off a
+   company machine — carry on to step 3 without treating it as an error.
+3. **Otherwise**, apply the built-in checklist below, and report
+   `methodology: built-in fallback` in the verdict. If a stub was present but the
+   substance was not and could not be read from disk, say so explicitly:
+   `methodology: built-in fallback (skill stub only)`. Never report a skill as the
+   methodology on the strength of its name alone — a fallback silently labelled as
+   the skill is the exact silent-degradation shape this agent is meant to catch in
+   other people's code.
+4. Whichever path ran, normalise the result to the Output format below — do not
+   adopt a skill's own output formatting if it diverges from it.
 
 ### Built-in fallback checklist
 Read every modified file in full, not just the diff — the full file reveals
