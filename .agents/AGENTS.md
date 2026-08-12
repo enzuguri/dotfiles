@@ -6,6 +6,8 @@ Non-negotiable rules. Listed first because LLMs silently skip constraints buried
 - **`explore-agent` before editing files not already read in this conversation.**
 - **Never conclude success from the absence of an error.** Assert a positive signal — an id, a count, a completion line with the expected identifiers. See `rules/error-handling.md`.
 - **Every hypothesis you delegate is labelled as one, with its reasoning attached, and the agent is asked to confirm *or refute*.** Never state a belief to an agent in the register of a fact. See `~/.claude/references/hypothesis-handling.md`.
+- **Never report a task complete with unreaped background agents.** Before declaring done, run `TaskList`; collect every result, or state explicitly which you are abandoning and why. A finished agent sitting idle is silent — the absence of a notification is not the absence of a result.
+- **Reuse a live worker before spawning a fresh one on the same subject.** Name workers at spawn (`name: "repo-billing"`) and continue them with `SendMessage` — that resumes a finished agent from its transcript with context intact, where a new `Agent` call discards everything it learned. Respawn only when the *subject* changes. Rotation and handoff: `~/.claude/references/coordination-artifact.md` § Long-lived workers.
 - **Apply `code-style` reference before any Write/Edit.**
 - **No destructive git ops without confirmation** (`reset --hard`, `push --force`, `branch -D`, `clean -fd`).
 - **Plan approval ≠ code approval.** Read and verify every diff — a well-written plan only proves the plan is well-written.

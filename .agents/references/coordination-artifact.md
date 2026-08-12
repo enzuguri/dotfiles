@@ -96,7 +96,21 @@ One line per flake: the symptom, the real cause, the check that distinguishes it
 the fix. These recur within a single session and cost real time every time they
 are rediscovered. See `~/.claude/references/failure-modes.md` § Flaky infrastructure.
 
-### 7. `## Open unknowns` — with the decision each one gates
+### 7. `## Dead ends` — correctly-reasoned paths that did not pan out
+
+One line each: `<what was tried> — <why it was rejected>`. Distinct from
+§Corrections, which records claims that were *wrong*; a dead end was sound
+reasoning that simply did not lead anywhere.
+
+This section exists because of a specific, measured loss. When a fresh agent
+replaces one that has accumulated context, the artefact carries the decisions and
+invariants across but not the *residue* — which files were read and ruled out,
+what shape the code turned out to have, what was attempted and abandoned. The
+replacement re-walks all of it. Most of that residue is not writable at
+reasonable cost; dead ends are the exception, because they are one line and they
+are exactly what gets re-tried.
+
+### 8. `## Open unknowns` — with the decision each one gates
 
 Not a to-do list. Each entry names what cannot currently be determined, what
 would determine it, who has that vantage point, and what changes depending on the
@@ -110,7 +124,8 @@ work.
 - **Cap the whole file at ~400 lines.** Past that, the long-form has leaked back
   in — move it to notes files. Check with `wc -l`, not by feel.
 - **The orchestrator owns §Current state and §Contract.** Agents own their §Status
-  lines and their own notes files, and may append to §Corrections and §Flake log.
+  lines and their own notes files, and may append to §Corrections, §Flake log, and
+  §Dead ends.
 - **Point agents at sections, not the file.** *"Read §Contract and the SEQUENCING
   block before writing code"* — never "read contract.md", which defeats the
   budget the structure exists to protect.
@@ -118,6 +133,35 @@ work.
   agent's input, have the producer write the spec to the artefact and the
   consumer read it directly. The orchestrator relaying it in chat pays for the
   same content twice and risks paraphrasing it once.
+
+---
+
+## Long-lived workers
+
+When work spans repos or sessions, prefer **one named worker per repo, reused**,
+over a fresh agent per task. A finished agent is not dead — `SendMessage` resumes
+it from its transcript with context intact, while a new `Agent` call discards
+everything it learned. Name workers at spawn (`name: "repo-billing"`) so they are
+addressable without juggling opaque ids.
+
+This does not violate the context-firewall rule. The firewall bounds the
+*orchestrator's* context; a worker holding 200k tokens of hard-won knowledge about
+its repo still returns the same compact summary. Worker and orchestrator are
+separate budgets.
+
+**Rotate on a threshold, not on a new task.** The same 40% / 60% discipline the
+orchestrator follows applies to a long-lived worker one level down:
+
+- At ~60% of its window, the worker writes `.agents/logs/<slug>/<repo>-notes.md`
+  — current mental model, files ruled out, dead ends, open threads.
+- Spawn its replacement seeded with that file plus §Current state. Same name.
+- Never resume a rotated worker from its transcript; the notes file is the handoff.
+
+**Respawn when the subject changes, not when the task does.** Accumulated context
+becomes accumulated prior: a worker that spent forty turns concluding "the bug is
+in the serializer" will keep finding serializer bugs. Continuity of subject is the
+reuse criterion — for an unrelated subject, a fresh agent's ignorance is the
+feature. See `~/.claude/references/hypothesis-handling.md`.
 
 ---
 
