@@ -1,6 +1,6 @@
 # Agent Harness
 
-A portable agent configuration for Claude Code, Cursor, and other Agent Skills–compatible CLIs. `install.sh` symlinks harness content into each tool's home directory and syncs top-level instructions where the tool expects them, so the same setup travels with the dotfiles repo across machines and is version-controlled like any other config.
+A portable agent configuration for Claude Code, Cursor, and other Agent Skills–compatible CLIs. `make install` symlinks harness content into each tool's home directory and syncs top-level instructions where the tool expects them, so the same setup travels with the dotfiles repo across machines and is version-controlled like any other config.
 
 This README is the entry point for colleagues. If you only want to know how to install it, jump to [Install](#install). If you want to understand why it is shaped this way, read the rest.
 
@@ -109,7 +109,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 ├── scripts/           (not symlinked — run by humans, not agents)
 │   ├── README.md
 │   └── verdict-check.sh       # measurement feeding decisions/open-questions.md
-└── install.sh
+└── Makefile           # install, link, sync-cursor, count-tokens — `make` lists them
 ```
 
 At runtime, two more subdirectories appear in each consumer repo:
@@ -196,14 +196,13 @@ See [`decisions/README.md`](decisions/README.md) for the format and index.
 ## Install
 
 ```bash
-./install.sh
+make install            # from .agents/, or `make -C .agents install` from the repo root
 ```
 
-The script:
+`install` runs two targets, each usable on its own:
 
-1. **Symlinks** `agents/`, `rules/`, and `skills/` into both `~/.claude/` and `~/.cursor/`
-2. **Symlinks** `AGENTS.md` → `~/.claude/CLAUDE.md` (Claude Code global instructions)
-3. **Syncs** `AGENTS.md` into Cursor **User Rules** via SQLite (`aicontext.personalContext` in `state.vscdb`)
+1. `make link` — **symlinks** `agents/`, `rules/`, and `skills/` into both `~/.claude/` and `~/.cursor/`, and `AGENTS.md` → `~/.claude/CLAUDE.md` (Claude Code global instructions)
+2. `make sync-cursor` — **syncs** `AGENTS.md` into Cursor **User Rules** via the `sqlite3` CLI (`aicontext.personalContext` in `state.vscdb`)
 
 Existing files at target paths are backed up with a timestamp; symlinks already pointing at the harness are left alone.
 
@@ -216,7 +215,7 @@ Existing files at target paths are backed up with a timestamp; symlinks already 
 
 Cursor also reads `~/.claude/agents/` and `~/.claude/skills/` for compatibility, but first-class `~/.cursor/` symlinks are installed explicitly.
 
-**After install:** restart Cursor so user rules reload. On Enterprise accounts, Cursor may sync user rules from the cloud — re-run `./install.sh` after editing `AGENTS.md` if the UI overwrites local changes.
+**After install:** restart Cursor so user rules reload. On Enterprise accounts, Cursor may sync user rules from the cloud — re-run `make sync-cursor` after editing `AGENTS.md` if the UI overwrites local changes.
 
 **Uninstall:** remove the symlinks only — pre-install files survive as `*.bak.<timestamp>`:
 
