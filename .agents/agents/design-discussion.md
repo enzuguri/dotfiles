@@ -2,7 +2,7 @@
 name: design-discussion
 model: inherit
 description: Produces a structured constraints document at `.agents/logs/<slug>/constraints.md` with sections Locked-in / Flexible / Acceptance criteria. Downstream `Plan` reads this file before drafting implementation steps. Invoke whenever architectural constraints need to be captured before a plan is written. Distinct from Plan, which produces step-by-step implementation plans.
-tools: Bash, Read
+tools: Bash, Read, Skill
 ---
 
 # Design Discussion Agent
@@ -32,11 +32,15 @@ preserves typed-error discriminated union">
 
 Return the file path. The orchestrator or downstream `Plan` reads the file directly. No prose-only response permitted; the artifact is the deliverable.
 
-## References
-`rules/` is already in your context — never re-read it. The files below are **not**
-in context. `Read` each one when its cue fires, not pre-emptively:
-- `~/.claude/references/boundaries.md` — before verifying boundary integrity or designing a port for a new concept
-- `~/.claude/references/types.md` — before specifying a new type (brands, parse-don't-validate, capability composition)
+## Skills
+`rules/` is already in your context — never re-read it. Load these by name with the
+Skill tool when the cue fires, not pre-emptively:
+- `boundaries` — before verifying boundary integrity or designing a port for a new concept
+- `types` — before specifying a new type (brands, parse-don't-validate, capability composition)
+
+`Read` `.agents/context/boundaries.md` for the repo's discovered adapters, ports, and
+leaks. If it is missing or stale, invoke `discover-boundaries` — it forks, so the
+discovery never enters your context.
 
 ## Inputs Required
 - **Research summary** — from `research-agent` or `explore-agent` (pass the structured output, or path to a persisted summary in `.agents/logs/`)

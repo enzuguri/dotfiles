@@ -1,8 +1,3 @@
----
-name: project-conventions
-description: How to orient in a new project before making changes. Always active — apply at the start of any task in an unfamiliar codebase or after context switches between projects.
----
-
 # Project Conventions
 
 ## Orientation Checklist

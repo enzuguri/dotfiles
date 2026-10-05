@@ -46,7 +46,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 | Stage | Role | Deliverable |
 |---|---|---|
 | `research-agent` | Parallel information gathering. Set aside the goal; document what the code *is*. Surface inconvenient facts. | `.agents/logs/<slug>/research.md` with one section per source |
-| `explore-agent` | Read-only codebase orientation. Grep before read; 8-file Read budget; structured output schema. | Structured summary (entry points, modules, conventions, boundaries, hotspots, gotchas) — persisted to `.agents/logs/<slug>/exploration.md` for non-trivial runs |
+| `explore-agent` | Read-only, task-scoped orientation. Reads repo-level caches from `discover-repo-map` / `discover-boundaries` (rebuilding when stale), then grep before read; 8-file task Read budget; structured output schema. | Structured summary (entry points, modules, conventions, boundaries, hotspots, gotchas) — persisted to `.agents/logs/<slug>/exploration.md` for non-trivial runs |
 | `design-discussion` | Takes research + goal, produces architectural constraints *before* a plan exists. The "brain surgery" stage. | `.agents/logs/<slug>/constraints.md` with `Locked-in / Flexible / Acceptance criteria` |
 | `Plan` (built-in) | Step-by-step implementation plan that satisfies the constraints document. | In-conversation plan |
 | `verification-agent` | Lint / format / typecheck / test / build in parallel. Reads commands from `.agents/context/project-tools.md`. | Structured pass/fail report with verdict |
@@ -85,22 +85,21 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── code-style.md
 │   ├── error-handling.md
 │   └── tooling.md
-├── references/        → ~/.claude/references/ and ~/.cursor/references/
-│   │                    Symlinked ONLY so agents have a stable path to `Read`.
-│   │                    Verified not auto-loaded. Cited by cue, never bulk-read.
-│   ├── types.md
-│   ├── boundaries.md
-│   ├── project-conventions.md
-│   ├── ast-grep.md
-│   ├── failure-modes.md
-│   ├── pr-authoring.md
-│   ├── reviewing.md
-│   ├── hypothesis-handling.md
-│   └── coordination-artifact.md
 ├── skills/            → ~/.claude/skills/ and ~/.cursor/skills/
-│   └── discover-project-tools/
-├── voices/            → ~/.claude/voices/ and ~/.cursor/voices/
-│   └── gentry.md
+│   │                    Loaded by bare name — never by path. Only descriptions
+│   │                    are always in context; bodies load on demand.
+│   ├── discover-project-tools/
+│   ├── discover-repo-map/     # forked into explore-agent; references/project-conventions.md
+│   ├── discover-boundaries/   # forked into explore-agent
+│   ├── trace-symbol/          # forked into explore-agent; references/ast-grep.md
+│   ├── revoice/               # forked into re-voicer; references/voices/gentry.md
+│   ├── hypothesis-handling/   # knowledge (user-invocable: false)
+│   ├── boundaries/            # knowledge
+│   ├── types/                 # knowledge
+│   ├── failure-modes/         # knowledge
+│   ├── coordination-artifact/ # knowledge
+│   ├── pr-authoring/          # knowledge
+│   └── review-routing/        # knowledge
 ├── decisions/         (not symlinked — read by humans, not agents)
 │   ├── README.md              # format, bar for writing one, index
 │   ├── 0001-*.md              # numbered decision records
@@ -117,7 +116,8 @@ At runtime, two more subdirectories appear in each consumer repo:
 <consumer-repo>/.agents/
 ├── context/           # Generated reference data, regenerated wholesale
 │   ├── project-tools.md       # Written by /discover-project-tools, read by verification-agent
-│   └── boundaries.md          # Cached output of the abstraction-boundary discovery algorithm
+│   ├── repo-map.md            # Written by /discover-repo-map, read by explore-agent
+│   └── boundaries.md          # Written by /discover-boundaries, read by explore-agent and design-discussion
 └── logs/              # Per-task handoff artifacts
     └── <YYYY-MM-DD>-<task-slug>/
         ├── research.md
@@ -128,9 +128,9 @@ At runtime, two more subdirectories appear in each consumer repo:
 ### Seven kinds of content, deliberately separated
 
 - **Agents** (`agents/`) — context firewalls with their own prompts, tool allowlists, and protocols. Invoked via the Agent tool. Shipped with the harness.
-- **Rules** (`rules/`) — shared behavioural guidance loaded on demand by topic (e.g. `code-style` before any Write/Edit, `boundaries` when designing new modules). Summaries live in `AGENTS.md` so the orchestrator knows when each becomes relevant; full text is read only when the topic is in play. Not invocable as skills — they are prompt fragments. Shipped with the harness.
-- **Skills** (`skills/`) — actual invocable harness skills. Currently `discover-project-tools`, which writes `.agents/context/project-tools.md`. Shipped with the harness.
-- **Context** (`context/`) — generated reference data, per-repo, regenerated wholesale when stale. Useful to teammates because it encodes verification commands and codebase structure; commit decision is per-consumer-repo. `project-tools.md` and `boundaries.md` live here. Not shipped — produced at runtime.
+- **Rules** (`rules/`) — always-on prohibitions and gates, auto-loaded into every session and subagent. Kept small because the cost is paid per spawn. Not invocable as skills. Shipped with the harness.
+- **Skills** (`skills/`) — everything loaded on demand, referenced by bare name. *Knowledge* skills (`user-invocable: false`) replace the old `references/`: hidden from the slash menu, loaded by the model when their cue fires. *Procedures*: the `discover-*` skills each write one `.agents/context/` cache; `trace-symbol` answers a single-symbol question; `revoice` bundles voice packs. Forked procedures run inside their named agent so their reads stay behind its firewall. Detail a single skill needs lives in that skill's `references/`, linked relatively — nothing reaches harness files by install path ([0003](decisions/0003-plugin-portability-by-name.md)). Shipped with the harness.
+- **Context** (`context/`) — generated reference data, per-repo, regenerated wholesale when stale. Useful to teammates because it encodes verification commands and codebase structure; commit decision is per-consumer-repo. `project-tools.md`, `repo-map.md`, and `boundaries.md` live here. Not shipped — produced at runtime.
 - **Logs** (`logs/`) — per-task handoff artifacts that pipeline stages drop for the next stage. One subdirectory per task slug. Typically gitignored — these are working memory for one task, not durable team context. Not shipped — produced at runtime.
 - **Decisions** (`decisions/`) — numbered records of why the harness is shaped this way, plus `open-questions.md` for theories still under test. Committed and shipped, but **deliberately not symlinked into any tool's home directory**: this is rationale for humans maintaining the harness, and loading it into every agent's context would be exactly the pollution the harness exists to prevent. See [Design decisions](#design-decisions).
 - **Scripts** (`scripts/`) — measurement and analysis tooling for maintaining the harness. Also not symlinked, and for a second reason on top of the one above: nothing here is agent-invoked. Kept separate from `decisions/` because a record is *read* and a script is *run* — different lifecycles, and a script parsing transcript internals can break silently in a way prose cannot.
@@ -209,7 +209,7 @@ Existing files at target paths are backed up with a timestamp; symlinks already 
 |---|---|---|
 | Top-level instructions | `~/.claude/CLAUDE.md` | User Rules in `state.vscdb` |
 | Sub-agents | `~/.claude/agents/` | `~/.cursor/agents/` |
-| Rules (read on demand) | `~/.claude/rules/` | `~/.cursor/rules/` |
+| Rules (always loaded) | `~/.claude/rules/` | `~/.cursor/rules/` |
 | Skills | `~/.claude/skills/` | `~/.cursor/skills/` |
 
 Cursor also reads `~/.claude/agents/` and `~/.claude/skills/` for compatibility, but first-class `~/.cursor/` symlinks are installed explicitly.

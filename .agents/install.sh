@@ -103,27 +103,24 @@ PY
   echo "  Restart Cursor for user rules to reload. Enterprise accounts may sync rules from the cloud."
 }
 
-# `rules` and `references` are NOT interchangeable, and the split is the whole point:
-#   rules/      → auto-loaded by Claude Code, in full, into every session AND every
-#                 subagent. Verified empirically: content under ~/.claude/rules is
-#                 present in a subagent's context with zero tool calls. Cost is paid
-#                 per agent spawn, so keep this directory small.
-#   references/ → symlinked only so agents have a stable path to `Read`. Confirmed
-#                 NOT auto-loaded (probe: strings unique to references/ are absent
-#                 from a fresh session's context; strings from rules/ are present).
-# Do not "tidy" references into rules — that silently re-adds ~40KB to every spawn.
+# `rules` and `skills` are NOT interchangeable, and the split is the whole point:
+#   rules/  → auto-loaded by Claude Code, in full, into every session AND every
+#             subagent. Verified empirically: content under ~/.claude/rules is
+#             present in a subagent's context with zero tool calls. Cost is paid
+#             per agent spawn, so keep this directory small.
+#   skills/ → only each skill's one-line description is always in context; bodies
+#             load by name on demand, and bundled `references/` resolve relative
+#             to the skill. Nothing reaches harness files by absolute path
+#             (see decisions/0003-plugin-portability-by-name.md).
+# Do not "tidy" knowledge skills into rules — that silently re-adds ~40KB to every spawn.
 declare -a SYMLINKS=(
   "$DOTFILES_DIR/AGENTS.md|$CLAUDE_DIR/CLAUDE.md"
   "$DOTFILES_DIR/agents|$CLAUDE_DIR/agents"
   "$DOTFILES_DIR/skills|$CLAUDE_DIR/skills"
   "$DOTFILES_DIR/rules|$CLAUDE_DIR/rules"
-  "$DOTFILES_DIR/references|$CLAUDE_DIR/references"
-  "$DOTFILES_DIR/voices|$CLAUDE_DIR/voices"
   "$DOTFILES_DIR/agents|$CURSOR_DIR/agents"
   "$DOTFILES_DIR/skills|$CURSOR_DIR/skills"
   "$DOTFILES_DIR/rules|$CURSOR_DIR/rules"
-  "$DOTFILES_DIR/references|$CURSOR_DIR/references"
-  "$DOTFILES_DIR/voices|$CURSOR_DIR/voices"
 )
 
 echo "Installing agent harness symlinks..."

@@ -12,7 +12,7 @@ description: >-
 # (`Bash, Read, Grep` grants only `Bash, Read`; `Read, Grep, Glob` grants all three).
 # Bash is required here for `git diff` / `gh pr diff` / default-branch detection, so
 # the search tools are unavailable by construction. Do not re-add them; search via `rg`.
-tools: Bash, Read
+tools: Bash, Read, Skill
 skills:
   - miro-way:review
 ---
@@ -31,7 +31,10 @@ concern owned by the caller, never produced here.
   defines a step that spawns a subagent (e.g. linked-doc context gathering via
   an `additional-context-search` agent), **skip that step** and record it in the
   verdict's `omitted` tag. Inline context via `gh`/CLI is fine.
-- **No `Grep` or `Glob`.** You hold only `Bash` and `Read`. Search with `rg` and
+- **Knowledge skills only.** `Skill` is for loading knowledge by name (e.g.
+  `hypothesis-handling`). Never invoke a skill with `context: fork` — it spawns a
+  nested agent, which is the sub-agent this firewall rules out.
+- **No `Grep` or `Glob`.** You hold only `Bash`, `Read`, and `Skill`. Search with `rg` and
   `fd` through `Bash`. A methodology step written against `Grep`/`Glob` fails at
   call time — translate it to `rg`/`fd` rather than skipping it.
 
@@ -114,7 +117,7 @@ a review of the wrong half of a PR reads exactly like a clean review.
 ## Refuting the caller is a success outcome
 If the prompt carries a claim about the change ("this is a regression", "this test
 was passing", "the diff is 2 files"), test it and report the result — refutations
-before findings. Full protocol: `~/.claude/references/hypothesis-handling.md`.
+before findings. Full protocol: the `hypothesis-handling` skill.
 
 ## Severity
 | Tag | Criteria |

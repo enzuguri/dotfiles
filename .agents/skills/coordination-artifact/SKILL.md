@@ -1,6 +1,7 @@
 ---
 name: coordination-artifact
-description: Schema for the shared `contract.md` that multiple agents coordinate through — rewritten §Current state, frozen §Contract nobody edits unilaterally, §Corrections for retractions, length-capped append-only §Status, flake log, open unknowns. Includes the cross-repo read-only-extractor + writer handoff and commit-hygiene reporting. Active whenever more than one agent works the same task.
+description: Schema and protocol for the shared `contract.md` that multiple agents coordinate through, plus long-lived worker rotation and handoff. Load when more than one agent works the same task, or across repos.
+user-invocable: false
 ---
 
 # Coordination Artefact
@@ -94,7 +95,7 @@ is for.
 
 One line per flake: the symptom, the real cause, the check that distinguishes it,
 the fix. These recur within a single session and cost real time every time they
-are rediscovered. See `~/.claude/references/failure-modes.md` § Flaky infrastructure.
+are rediscovered. See the `failure-modes` skill § Flaky infrastructure.
 
 ### 7. `## Dead ends` — correctly-reasoned paths that did not pan out
 
@@ -161,7 +162,7 @@ orchestrator follows applies to a long-lived worker one level down:
 becomes accumulated prior: a worker that spent forty turns concluding "the bug is
 in the serializer" will keep finding serializer bugs. Continuity of subject is the
 reuse criterion — for an unrelated subject, a fresh agent's ignorance is the
-feature. See `~/.claude/references/hypothesis-handling.md`.
+feature. See the `hypothesis-handling` skill.
 
 ---
 

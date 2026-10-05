@@ -74,6 +74,7 @@ write it down. If they'd have to be confused to propose the opposite, don't.
 |---|---|---|
 | [0001](0001-subagents-are-context-firewalls.md) | Sub-agents are context firewalls, not personas | Accepted |
 | [0002](0002-log-reader-stays-read-only.md) | Diagnostic firewalls stay read-only; no "devops" agent | Accepted |
+| [0003](0003-plugin-portability-by-name.md) | Plugin portability: resolve by name, not by path | Accepted |
 
 See also [`open-questions.md`](open-questions.md) — theories not yet settled, with
 the test that would settle each.

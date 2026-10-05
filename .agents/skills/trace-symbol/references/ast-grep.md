@@ -1,8 +1,3 @@
----
-name: ast-grep
-description: Pattern library for ast-grep and rg-based code structure searches. Load this skill whenever an agent needs to find, trace, or transform code relationships — exports, imports, call sites, function declarations. Useful for explore-agent, review-agent, and migration-agent.
----
-
 # ast-grep Pattern Library
 
 ## Syntax Primer

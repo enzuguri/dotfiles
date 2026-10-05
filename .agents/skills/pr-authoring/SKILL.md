@@ -1,3 +1,9 @@
+---
+name: pr-authoring
+description: Mechanics for creating a PR through `git-agent` plus an optional PR-body renderer, and when to hand the whole flow to a wholesale PR skill instead. Load when executing PR creation.
+user-invocable: false
+---
+
 # PR Authoring (capability-first routing)
 
 PR *creation* is decomposed across two owners coordinated by the orchestrator.

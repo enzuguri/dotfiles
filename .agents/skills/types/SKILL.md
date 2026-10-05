@@ -1,6 +1,7 @@
 ---
 name: types
-description: Type design — brands for proof, parse-don't-validate at I/O boundaries, capability composition over monolithic interfaces. Language-agnostic principles with TS/Rust/Swift/Python examples. Always active.
+description: Type design — brands for proof, parse-don't-validate at I/O boundaries, capability composition. Load when designing a new type or port.
+user-invocable: false
 ---
 
 # Type Design
@@ -181,7 +182,7 @@ Right granularity: "things that change together stay together; things that vary 
 
 - **Parsing produces branded values.** The parser is the construction chokepoint that enforces the brand's invariant.
 - **Brands can witness capabilities.** A `WriteHandle` brand on a resource proves write access; passing it is the type-level grant.
-- **Ports** (per `~/.claude/references/boundaries.md`) are best specified as capability intersections — not a monolithic `UserPort` but the minimum capabilities each consumer needs.
+- **Ports** (per the `boundaries` skill) are best specified as capability intersections — not a monolithic `UserPort` but the minimum capabilities each consumer needs.
 
 ---
 

@@ -41,7 +41,7 @@ Write assertions that can only pass if the work happened:
 ## Diagnosing a failure
 
 When a run reports success but did less than it claimed, or an intermittent
-failure is being treated as deterministic, load
-`~/.claude/references/failure-modes.md` — the catalogue of silent-degradation shapes
+failure is being treated as deterministic, load the
+`failure-modes` skill — the catalogue of silent-degradation shapes
 (non-fatal missing dependency, no-op fallback, swallowed error, empty discovery)
 and flaky-infrastructure signatures.

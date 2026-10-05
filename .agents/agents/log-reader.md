@@ -9,7 +9,7 @@ description: >-
   server startup logs, CI output, long-running process output, and poll-until-ready
   waits. Never starts, stops, or restarts processes — the orchestrator owns
   process lifecycle.
-tools: Bash, Read, Grep
+tools: Bash, Read, Grep, Skill
 ---
 
 # Log Reader
@@ -58,7 +58,7 @@ chose to test in your report so the caller can see what was and was not checked.
    a thing happened. Every ✅ verdict must cite a **positive** log line that could
    only exist if the thing occurred. If the only available signal is negative
    (an error that did not appear), say so explicitly and downgrade the verdict to
-   `unproven`, not `pass`. See `~/.claude/references/failure-modes.md` § Silent degradation.
+   `unproven`, not `pass`. See the `failure-modes` skill § Silent degradation.
 2. **Distinguish "did not happen" from "not logged".** Before reporting a missing
    line as a failure, establish whether that line *can* emit on the path taken —
    check the emitting call site and its preconditions. A log line absent because

@@ -1,13 +1,14 @@
 ---
 name: failure-modes
-description: Catalogue of silent-degradation shapes and flaky-infrastructure signatures. Load on demand when diagnosing a run that reported success while doing less than it claimed, or when an intermittent failure is being mistaken for a deterministic one. The always-active principle lives in `rules/error-handling.md`.
+description: Catalogue of silent-degradation shapes and flaky-infrastructure signatures. Load when a run reported success but did less than it claimed, or an intermittent failure is being treated as deterministic.
+user-invocable: false
 ---
 
 # Failure Modes
 
 Diagnostic catalogue. The governing principle — *every check asserts a positive
 signal; absence of an error is never evidence* — is always active and lives in
-`rules/error-handling.md`. This file is the detail you consult once something has
+`rules/error-handling.md`. This skill is the detail you consult once something has
 already gone wrong, or when reviewing code for these shapes.
 
 ## Silent degradation
@@ -63,5 +64,5 @@ an intermittent failure as deterministic burns whole cycles.
   in") before blaming code. Re-authenticating can silently *downgrade* a session
   rather than restore it.
 - Record accumulated flake signatures in the task's coordination artefact
-  (`~/.claude/references/coordination-artifact.md`) — they recur within a session and are pure
+  (the `coordination-artifact` skill) — they recur within a session and are pure
   cost each time they are rediscovered.

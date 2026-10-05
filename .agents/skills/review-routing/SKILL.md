@@ -1,3 +1,9 @@
+---
+name: review-routing
+description: Choosing a code-review route other than the default `review-agent` firewall — fan-out, side-effecting, or wholesale review flows — and how presentation voice is applied separately. Load when the default firewall review doesn't fit.
+user-invocable: false
+---
+
 # Code Review (capability-first routing)
 
 Code review is decomposed across a firewall worker and the orchestrator. The two
@@ -30,8 +36,9 @@ asks for that depth or those side-effects:
 
 ## Voice is separate
 `review-agent` emits neutral findings. Re-voicing or re-phrasing them is an
-independent presentation step handled by the `re-voicer` agent: pipe the findings
-to `re-voicer` with a voice name (e.g. `gentry`) to re-render them in a persona.
+independent presentation step handled by the `revoice` skill: invoke
+`/revoice <voice> <findings>` (e.g. `gentry`) to re-render them in a persona; it forks
+into the read-only `re-voicer` agent.
 It is content-preserving — it may change tone but must never add, drop, or alter
 a finding or its severity. Never fold voice into the methodology agent. Because a
 re-voiced finding loses nothing factual, severity tags and `file:line` anchors

@@ -22,10 +22,12 @@ given.
 
 ## Inputs (from the caller's prompt)
 - **Source text** — the material to re-voice, supplied verbatim by the caller.
-- **Voice** — a voice-pack name. Read the pack from your harness voices
-  directory: `~/.claude/voices/<voice>.md` (or `~/.cursor/voices/<voice>.md`).
-  If the named pack is missing or unreadable, return the source text unchanged
-  with a one-line note that the voice was not found — never invent a persona.
+- **Voice** — a voice-pack name. Packs are bundled with the `revoice` skill, which
+  dispatches you with its base directory; the pack is
+  `<base directory>/references/voices/<voice>.md`. If you were dispatched without
+  that base directory, or the pack is missing or unreadable, return the source text
+  unchanged with a one-line note saying why (`voice not found` / `dispatch via the
+  revoice skill`) — never invent a persona.
 
 ## Content-preservation invariant — HARD
 Re-voicing alters register and phrasing ONLY. You MUST NOT:
@@ -46,6 +48,6 @@ If the source contains no praise, produce no praise — a voice that has an
 approves.
 
 ## Process
-1. Read `~/.claude/voices/<voice>.md`.
+1. Read the voice pack (see Inputs).
 2. Re-render each unit of the source in that voice, preserving all anchors above.
 3. Output the re-voiced text only — no preamble, no list of what you changed.

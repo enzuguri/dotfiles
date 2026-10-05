@@ -1,6 +1,7 @@
 ---
 name: hypothesis-handling
-description: How to transmit beliefs across a delegation boundary and how agents must answer them. Callers label hypotheses as hypotheses and attach the reasoning chain; agents return CONFIRMED / REFUTED / PARTIALLY / UNPROVABLE-HERE with file:line evidence, refutations first. Active whenever work is delegated to or performed by a subagent.
+description: "Protocol for beliefs crossing a delegation boundary: callers label hypotheses and attach reasoning; agents answer CONFIRMED / REFUTED / PARTIALLY / UNPROVABLE-HERE with file:line evidence, refutations first. Load when writing a dispatch that carries a belief, or when answering one."
+user-invocable: false
 ---
 
 # Hypothesis Handling
