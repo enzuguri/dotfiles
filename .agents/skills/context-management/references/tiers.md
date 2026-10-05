@@ -11,6 +11,11 @@ Two tiers. The distinction is load-bearing, not cosmetic:
   loaded. Long detail a single skill needs lives in its own `references/` and is
   linked relatively, so nothing depends on install location.
 
+**Splitting into `references/`:** move only content needed conditionally (another
+language, another mode, first run), and point to it from `SKILL.md` with the cue
+that triggers the `Read`. A reference read on every load saves nothing and adds a
+skippable step.
+
 **Membership test for `rules/`:** *would the absence of this text cause the wrong
 action, with no cue that would have fetched it in time?*
 

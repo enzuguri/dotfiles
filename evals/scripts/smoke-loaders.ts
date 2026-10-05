@@ -24,7 +24,7 @@ async function main() {
   console.log(`agents loaded: ${agentNames.length} → ${agentNames.join(", ")}`);
   console.log(`skills loaded: ${skillNames.length} → ${skillNames.join(", ")}`);
 
-  if (agentNames.length !== 7) throw new Error(`expected 7 agents, got ${agentNames.length}`);
+  if (agentNames.length !== 8) throw new Error(`expected 8 agents, got ${agentNames.length}`);
   for (const [name, def] of Object.entries(agents)) {
     if (!def.description.trim()) throw new Error(`agent '${name}' has empty description`);
     if (!def.prompt.trim()) throw new Error(`agent '${name}' has empty prompt body`);

@@ -8,6 +8,8 @@ user-invocable: false
 
 Types carry meaning beyond shape. A well-designed type system encodes invariants, identity, and capabilities — not just data layout. Three patterns reinforce each other: parsing produces typed values at I/O boundaries, brands carry proof on those values, capability composition decomposes them into the minimum surface each consumer needs.
 
+Examples are TypeScript. For Rust, Swift, or Python, `Read` `references/languages.md` (relative to this skill's base directory) before writing the type.
+
 ---
 
 ## Brands
@@ -34,42 +36,15 @@ bus.on(USER_CREATED, ({ id, email }) => { ... });   // handler typed
 
 If neither problem applies, don't brand. Convenience-driven branding adds noise without payoff.
 
-### Pattern across languages
+### Pattern
 
-**TypeScript** — no native nominal types; phantom marker is the workaround:
+TypeScript has no native nominal types; a phantom marker is the workaround:
 ```ts
 type Brand<K, T> = K & { readonly __brand: T };
 type UserId = Brand<string, 'UserId'>;
 
 export const parseUserId = (s: string): UserId | null =>
   /^[a-z0-9]{12}$/.test(s) ? (s as UserId) : null;
-```
-
-**Rust** — canonical newtype + `TryFrom`:
-```rust
-pub struct UserId(String);
-
-impl TryFrom<&str> for UserId {
-    type Error = ParseError;
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
-        if valid(s) { Ok(UserId(s.into())) } else { Err(...) }
-    }
-}
-```
-
-**Swift** — struct wrapping with failable init:
-```swift
-struct UserId {
-    let value: String
-    init?(_ s: String) { guard valid(s) else { return nil }; self.value = s }
-}
-```
-
-**Python** — `NewType` (conventional, not enforced at runtime):
-```python
-from typing import NewType
-UserId = NewType('UserId', str)
-def parse_user_id(s: str) -> UserId | None: ...
 ```
 
 ### Smells
@@ -119,7 +94,7 @@ function send(to: Email) { /* type proves it */ }
 - Parser that returns the same primitive (`parseEmail(s: string): string`) — no proof carried
 
 ### Library notes
-TS: zod, valibot, arktype, io-ts. Python: pydantic, dataclasses + parsers. Rust: serde + `TryFrom`. Swift: `Codable` + Result. Match the project's existing choice; don't introduce a new parser library on a whim.
+TS: zod, valibot, arktype, io-ts. Match the project's existing choice; don't introduce a new parser library on a whim.
 
 ---
 
@@ -128,9 +103,9 @@ TS: zod, valibot, arktype, io-ts. Python: pydantic, dataclasses + parsers. Rust:
 ### Principle
 Decompose types into many narrow interfaces. Combine at use sites; accept the minimum capability needed. Avoid monolithic interfaces and deep inheritance.
 
-### Pattern across languages
+### Pattern
 
-**TypeScript** — intersection:
+Intersection:
 ```ts
 interface Readable<T> { read(): Promise<T> }
 interface Writable<T> { write(value: T): Promise<void> }
@@ -139,31 +114,6 @@ interface Closable { close(): Promise<void> }
 type Stream<T> = Readable<T> & Writable<T> & Closable;
 
 function consume(s: Readable<User>) { /* accepts minimum */ }
-```
-
-**Rust** — trait bounds:
-```rust
-trait Readable<T> { fn read(&self) -> T; }
-trait Writable<T> { fn write(&mut self, v: T); }
-
-fn process<S: Readable<U> + Writable<U>>(s: &mut S) { ... }
-```
-
-**Python** — structural `Protocol`:
-```python
-@runtime_checkable
-class Readable(Protocol[T]):
-    def read(self) -> T: ...
-
-def consume(r: Readable[User]) -> None: ...
-```
-
-**Swift** — protocol composition:
-```swift
-protocol Readable { associatedtype T; func read() -> T }
-protocol Writable { associatedtype T; func write(_ v: T) }
-
-func consume<S: Readable & Writable>(_ s: S) where S.T == User { ... }
 ```
 
 ### Smells

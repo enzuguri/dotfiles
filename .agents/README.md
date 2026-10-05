@@ -53,7 +53,6 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 | `verification-agent` | Lint / format / typecheck / test / build in parallel. Reads commands from `.agents/context/project-tools.md`. | Structured pass/fail report with verdict |
 | `log-reader` | Read-only interpretation of logs and command output; also owns poll-until-ready waits. Assertion in, verdict + verbatim evidence out. Never touches process lifecycle. | Verdict with evidence lines |
 | `git-agent` | Commits, branches, rebases, PRs, CI monitoring. Never reads source — works from the prompt summary and `git log` only. | Commit / PR / status |
-| `slack-insights` | Peer-interest mining, channel digests, period rollups. Out-of-band but uses the same artifact pattern. | Daily/period reports under `~/.config/slack-insights/reports/` |
 
 ### Why this shape
 
@@ -78,8 +77,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── git-agent.md
 │   ├── review-agent.md
 │   ├── log-reader.md
-│   ├── re-voicer.md
-│   └── slack-insights.md
+│   └── re-voicer.md
 ├── rules/             → ~/.claude/rules/ and ~/.cursor/rules/
 │   │                    AUTO-LOADED in full into every session and every
 │   │                    subagent. Cost is paid per agent spawn — keep small.
@@ -95,6 +93,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │   ├── discover-boundaries/   # forked into orient-agent
 │   ├── trace-symbol/          # forked into orient-agent; references/ast-grep.md
 │   ├── revoice/               # forked into re-voicer; references/voices/gentry.md
+│   ├── slack-insights/        # forked into general-purpose; references/bootstrap.md, rollup.md
 │   ├── hypothesis-handling/   # knowledge (user-invocable: false)
 │   ├── boundaries/            # knowledge
 │   ├── types/                 # knowledge
@@ -131,7 +130,7 @@ At runtime, two more subdirectories appear in each consumer repo:
 
 - **Agents** (`agents/`) — context firewalls with their own prompts, tool allowlists, and protocols. Invoked via the Agent tool. Shipped with the harness.
 - **Rules** (`rules/`) — always-on prohibitions and gates, auto-loaded into every session and subagent. Kept small because the cost is paid per spawn. Not invocable as skills. Shipped with the harness.
-- **Skills** (`skills/`) — everything loaded on demand, referenced by bare name. *Knowledge* skills (`user-invocable: false`) replace the old `references/`: hidden from the slash menu, loaded by the model when their cue fires. *Procedures*: the `discover-*` skills each write one `.agents/context/` cache; `trace-symbol` answers a single-symbol question; `revoice` bundles voice packs. Forked procedures run inside their named agent so their reads stay behind its firewall. Detail a single skill needs lives in that skill's `references/`, linked relatively — nothing reaches harness files by install path ([0003](decisions/0003-plugin-portability-by-name.md)). Shipped with the harness.
+- **Skills** (`skills/`) — everything loaded on demand, referenced by bare name. *Knowledge* skills (`user-invocable: false`) replace the old `references/`: hidden from the slash menu, loaded by the model when their cue fires. *Procedures*: the `discover-*` skills each write one `.agents/context/` cache; `trace-symbol` answers a single-symbol question; `revoice` bundles voice packs. `slack-insights` writes daily and period Slack reports under `~/.config/slack-insights/reports/`. Forked procedures run inside their named agent so their reads stay behind its firewall. Detail a single skill needs lives in that skill's `references/`, linked relatively — nothing reaches harness files by install path ([0003](decisions/0003-plugin-portability-by-name.md)). Shipped with the harness.
 - **Context** (`context/`) — generated reference data, per-repo, regenerated wholesale when stale. Useful to teammates because it encodes verification commands and codebase structure; commit decision is per-consumer-repo. `project-tools.md`, `repo-map.md`, and `boundaries.md` live here. Not shipped — produced at runtime.
 - **Logs** (`logs/`) — per-task handoff artifacts that pipeline stages drop for the next stage. One subdirectory per task slug. Typically gitignored — these are working memory for one task, not durable team context. Not shipped — produced at runtime.
 - **Decisions** (`decisions/`) — numbered records of why the harness is shaped this way, plus `open-questions.md` for theories still under test. Committed and shipped, but **deliberately not symlinked into any tool's home directory**: this is rationale for humans maintaining the harness, and loading it into every agent's context would be exactly the pollution the harness exists to prevent. See [Design decisions](#design-decisions).

@@ -137,51 +137,16 @@ work.
 
 ---
 
-## Long-lived workers
+## Load on cue
 
-When work spans repos or sessions, prefer **one named worker per repo, reused**,
-over a fresh agent per task. A finished agent is not dead — `SendMessage` resumes
-it from its transcript with context intact, while a new `Agent` call discards
-everything it learned. Name workers at spawn (`name: "repo-billing"`) so they are
-addressable without juggling opaque ids.
+`Read` these (relative to this skill's base directory) when the cue fires:
 
-This does not violate the context-firewall rule. The firewall bounds the
-*orchestrator's* context; a worker holding 200k tokens of hard-won knowledge about
-its repo still returns the same compact summary. Worker and orchestrator are
-separate budgets.
-
-**Rotate on a threshold, not on a new task.** The same 40% / 60% discipline the
-orchestrator follows applies to a long-lived worker one level down:
-
-- At ~60% of its window, the worker writes `.agents/logs/<slug>/<repo>-notes.md`
-  — current mental model, files ruled out, dead ends, open threads.
-- Spawn its replacement seeded with that file plus §Current state. Same name.
-- Never resume a rotated worker from its transcript; the notes file is the handoff.
-
-**Respawn when the subject changes, not when the task does.** Accumulated context
-becomes accumulated prior: a worker that spent forty turns concluding "the bug is
-in the serializer" will keep finding serializer bugs. Continuity of subject is the
-reuse criterion — for an unrelated subject, a fresh agent's ignorance is the
-feature. See the `hypothesis-handling` skill.
+- `references/long-lived-workers.md` — before reusing, rotating, or handing off a
+  named worker across tasks or sessions.
+- `references/cross-repo.md` — when a behaviour in one repo is being reimplemented
+  in another (extractor + writer split).
 
 ---
-
-## Cross-repo handoff: extractor + writer
-
-The strongest use of this artefact. When work spans repos, do not put one agent in
-both:
-
-- A **read-only extractor** in the source repo produces an implementation-ready
-  spec: exact behaviours, `file:line` for each, the *why* where it is empirical
-  rather than contractual, sequencing constraints, and — explicitly — the
-  behaviours nobody asked about that a reimplementation would otherwise miss.
-- A **writer** in the target repo implements against that spec.
-- The spec lives in the artefact. **The orchestrator never holds the source.**
-
-This is what lets a behaviour be reimplemented in a different language across a
-repo boundary at near-zero orchestrator context cost. The extractor's discipline
-— read-only, zero files changed, nothing restarted, and it says so — is what makes
-it safe to run in a repo nobody intends to modify.
 
 ## Commit-hygiene reporting
 

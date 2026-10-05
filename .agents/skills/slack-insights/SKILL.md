@@ -1,11 +1,15 @@
 ---
 name: slack-insights
-model: inherit
 description: Peer interest mining, channel digest, and period rollup. Fetches Slack messages and produces daily reports, or synthesises existing reports into a period summary — no Slack access needed for rollups.
-tools: Bash, Read, Write, mcp__plugin_slack_slack__slack_search_public, mcp__plugin_slack_slack__slack_search_channels
+argument-hint: "[date, window, or rollup request]"
+context: fork
+agent: general-purpose
+allowed-tools: Bash, Read, Write, mcp__plugin_slack_slack__slack_search_public, mcp__plugin_slack_slack__slack_search_channels
 ---
 
-# Slack Insights Agent
+# Slack Insights
+
+Request: $ARGUMENTS
 
 ## Data directory: `~/.config/slack-insights/`
 
@@ -17,47 +21,15 @@ tools: Bash, Read, Write, mcp__plugin_slack_slack__slack_search_public, mcp__plu
 
 ---
 
-## Step 0: Bootstrap (first run)
+## Step 0: Config
 
-Check whether `~/.config/slack-insights/` exists:
-
-```bash
-ls ~/.config/slack-insights/
-```
-
-If missing, seed it:
-
-```bash
-mkdir -p ~/.config/slack-insights/reports
-```
-
-Write `~/.config/slack-insights/config.json` if absent:
-```json
-{
-  "peers": [],
-  "channels": []
-}
-```
-
-If both `peers` and `channels` are empty after seeding, **stop and tell the user** to populate `~/.config/slack-insights/config.json`:
-```json
-{
-  "peers": [
-    { "name": "Alice", "slack_id": "U123ABC" }
-  ],
-  "channels": [
-    { "name": "tech-review" },
-    { "name": "product_review" }
-  ]
-}
-```
-Channel entries may use `name` (resolved via `slack_search_channels`) or `channel_id` directly.
+Read `~/.config/slack-insights/config.json`. If it does not exist, or both `peers` and `channels` are empty, Read `references/bootstrap.md` (relative to this skill's base directory) and follow it.
 
 ---
 
 ## Step 1: Determine mode and date range
 
-First, check whether the caller is requesting a **rollup** (e.g. "summarise last week", "roll up this week", "give me a period summary"). If so, skip to the [Rollup Pipeline](#rollup-pipeline) section below.
+First, check whether the caller is requesting a **rollup** (e.g. "summarise last week", "roll up this week", "give me a period summary"). If so, Read `references/rollup.md` (relative to this skill's base directory) and follow it instead of Steps 2–4.
 
 Otherwise determine the fetch date range:
 - If a date or window is specified (e.g. "run for 2026-04-28", "last 3 days"): use it, set `mode: historical`
@@ -187,92 +159,3 @@ When enriching an existing report, update the front-matter to reflect the latest
 - Never post to Slack or modify any channel
 - If auth fails, stop immediately — do not retry in a loop
 - Existing report content is never discarded — only updated or extended
-
----
-
-## Rollup Pipeline
-
-Triggered when the caller asks for a period summary. Reads existing daily report files only — no Slack API calls.
-
-### R1: Determine range
-
-Default to last 7 days if not specified. List available report files:
-```bash
-ls ~/.config/slack-insights/reports/[0-9]*.md
-```
-Note which dates in the range have reports and which are missing — mention gaps in the output. Warn and confirm before proceeding if fewer than 3 reports exist.
-
-### R2: Fast-path scan via front-matter
-
-For each report file, read YAML front-matter only. Extract per-peer `signal` and `topics` without reading prose. Use this to identify:
-- Peers with High signal on multiple days (read their prose)
-- Topics recurring across 2+ days per peer (more significant than one-off)
-- Channels appearing in hot-channels across multiple days
-
-Only read prose for High/Medium signal entries and recurring topics — skip the rest.
-
-### R3: Synthesise
-
-**Per peer:**
-- **Recurring topics** — appearing in 2+ daily reports
-- **Signal trajectory** — e.g. "High Mon–Wed, quiet Thu–Fri"
-- **Key moments** — 1–2 sentences on the most notable activity, with links from daily report prose
-- **Spike days** — any spike flags from daily reports
-
-**Cross-peer:**
-- **Shared topics/channels** — multiple peers active in the same place on the same day (alignment opportunity or shared problem)
-- **Persistent hot channels** — appearing across 3+ days are strong candidates to add to `config.json`
-
-**Incident signals:**
-Flag entries suggesting unplanned urgent work — without assuming channel naming conventions. Signals: spike flags, or words like "incident", "rollback", "revert", "unblock", "p0", "urgent" in daily summaries.
-
-### R4: Write rollup report
-
-Write to `~/.config/slack-insights/reports/summary-YYYY-MM-DD--YYYY-MM-DD.md`. If a file for this exact range already exists, append a new run section rather than overwriting.
-
-```markdown
----
-type: rollup
-generated_at: YYYY-MM-DDTHH:MM:SSZ
-period_start: YYYY-MM-DD
-period_end: YYYY-MM-DD
-reports_found: [YYYY-MM-DD, ...]
-reports_missing: [YYYY-MM-DD, ...]
----
-
-# Slack Insights — YYYY-MM-DD to YYYY-MM-DD
-
-## Peers
-
-### {Peer Name}
-**Recurring topics:** topic1, topic2
-**Signal:** High (3d) / Medium (1d) / Quiet (1d)
-**Summary:** What they were focused on this period, with links to key moments.
-⚠️ Spike on YYYY-MM-DD: N messages in #channel-name
-
-### Quiet all period
-- Name
-
----
-
-## Shared Activity
-Topics or channels where multiple peers were active simultaneously.
-
-- **#channel / topic**: Peer A + Peer B both active on YYYY-MM-DD
-
----
-
-## Persistent Hot Channels
-Surfaced across 3+ daily reports — strong candidates for `config.json`.
-
-| Channel | Days seen | Peers |
-|---|---|---|
-| #some-channel | 4 | Alice, Bob |
-
----
-
-## Incident Signals
-Possible unplanned urgent work flagged from daily reports.
-
-- YYYY-MM-DD — {Peer Name}: description with [link](...)
-```
