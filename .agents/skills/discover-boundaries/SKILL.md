@@ -2,12 +2,12 @@
 name: discover-boundaries
 description: Discovers a repo's abstraction boundaries — adapter files that wrap I/O libraries, the ports consumers actually import, and cross-boundary leaks — and caches the result at `.agents/context/boundaries.md`. Invoke before designing a port or checking boundary integrity when that cache is missing or stale. Repo-level and cached; for the principles (smells, port design, trade-offs) load the `boundaries` skill instead.
 context: fork
-agent: explore-agent
+agent: orient-agent
 ---
 
 # Discover Boundaries
 
-Produce `.agents/context/boundaries.md` — the repo's adapter/port map. `explore-agent`
+Produce `.agents/context/boundaries.md` — the repo's adapter/port map. `orient-agent`
 and `design-discussion` read it instead of rediscovering boundaries every task.
 The principles behind what counts as a boundary or a leak live in
 the `boundaries` skill (§ Smells); load it only if a leak judgement is
@@ -21,7 +21,7 @@ chose.
 ## Read budget
 Discovery is `rg`-driven. Reads are only for confirming a port's public surface
 (barrel files, a representative adapter). **Max 6 Reads.** This budget is separate
-from `explore-agent`'s task budget when it runs this procedure inline.
+from `orient-agent`'s task budget when it runs this procedure inline.
 
 ---
 

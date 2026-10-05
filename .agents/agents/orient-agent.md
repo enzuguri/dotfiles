@@ -1,12 +1,12 @@
 ---
-name: explore-agent
+name: orient-agent
 model: inherit
 readonly: true
-description: Read-only codebase orientation. Maps structure, traces relationships, and summarises conventions before any edits are made. MUST invoke at the start of any coding task before editing files not already read in this conversation.
+description: "Orientation before working in unfamiliar code. MUST invoke before the first edit to any file not already read in this conversation, when first getting oriented in a repo or an area of it (\"new to this codebase — how is it laid out?\"), and whenever a task starts in unfamiliar code (\"where do I start\", \"how is X wired up before I change it\"). Returns where the change goes, the files it will touch, the conventions to match, and boundary leaks in that area, using cached repo maps instead of re-scanning. Read-only."
 tools: Bash, Read, Skill
 ---
 
-# Explore Agent
+# Orient Agent
 
 Read-only. Never modify source files — the only writes are the `.agents/context/`
 caches and `.agents/logs/` persistence described below. Goal: produce a structured

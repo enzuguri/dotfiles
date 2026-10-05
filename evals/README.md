@@ -8,7 +8,7 @@ The eval measures the **combined contract** of:
 
 1. Each agent's `description` frontmatter field (used by the orchestrator to decide routing)
 2. Each agent's `name` field (must match `tool_use.input.subagent_type` returned by the SDK)
-3. Project `.agents/AGENTS.md` routing guidance (loaded via `settingSources: ["project"]`)
+3. Nothing else: the harness passes `settingSources: ["project"]` with `cwd` at the repo root, which has no project `CLAUDE.md` or `.claude/skills/`, so neither `.agents/AGENTS.md` nor the `context-management` skill's routing guidance reaches the orchestrator. Scores measure agent descriptions alone
 
 A failure could mean any of these is at fault. The triage table below maps symptoms to likely causes.
 
@@ -51,7 +51,7 @@ Cases live in `cases/routing/<agent-name>.yaml` (skills can go in `cases/skills/
 ```yaml
 - id: unique-case-id
   prompt: "what the user asks the orchestrator"
-  expected: "agent:explore-agent"   # or "skill:foo" or null
+  expected: "agent:orient-agent"   # or "skill:foo" or null
   notes: |
     Why this should route there. Cite the agent description if possible.
 ```

@@ -23,6 +23,7 @@ Frontier LLMs lose coherence past roughly 150–200 instructions or once context
 Every design choice in this harness follows from that observation:
 
 - **Hard constraints first.** `AGENTS.md` opens with non-negotiable rules. Constraints buried late get silently skipped by the model — the order of the prompt encodes priority.
+- **A minimal always-on base.** `AGENTS.md` holds only the hard constraints, tone, and decision-making defaults. Routing, delegation, and context budgets live in the `context-management` skill: loaded before delegating or on long sessions, forced with `/context-management`, skipped on one-shot tasks. Portable to harnesses that inject only a small instructions file.
 - **Sub-agents are context firewalls, not personas.** A sub-agent exists to run a bounded job in its own context window and return a compact summary. Its purpose is to keep the orchestrator's context clean, not to roleplay a specialism.
 - **Artifacts over conversation.** Agents coordinate through files under `.agents/` (and a few in `~/.config/`), not by passing prose through the orchestrator. The orchestrator reads the artifact path; the artifact itself never enters the orchestrator's context unless needed.
 - **Compact targets.** Aim for under 40% context utilisation, persist progress at 60%, resume from the summary — never from the transcript.
@@ -46,7 +47,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 | Stage | Role | Deliverable |
 |---|---|---|
 | `research-agent` | Parallel information gathering. Set aside the goal; document what the code *is*. Surface inconvenient facts. | `.agents/logs/<slug>/research.md` with one section per source |
-| `explore-agent` | Read-only, task-scoped orientation. Reads repo-level caches from `discover-repo-map` / `discover-boundaries` (rebuilding when stale), then grep before read; 8-file task Read budget; structured output schema. | Structured summary (entry points, modules, conventions, boundaries, hotspots, gotchas) — persisted to `.agents/logs/<slug>/exploration.md` for non-trivial runs |
+| `orient-agent` | Read-only, task-scoped orientation. Reads repo-level caches from `discover-repo-map` / `discover-boundaries` (rebuilding when stale), then grep before read; 8-file task Read budget; structured output schema. | Structured summary (entry points, modules, conventions, boundaries, hotspots, gotchas) — persisted to `.agents/logs/<slug>/exploration.md` for non-trivial runs |
 | `design-discussion` | Takes research + goal, produces architectural constraints *before* a plan exists. The "brain surgery" stage. | `.agents/logs/<slug>/constraints.md` with `Locked-in / Flexible / Acceptance criteria` |
 | `Plan` (built-in) | Step-by-step implementation plan that satisfies the constraints document. | In-conversation plan |
 | `verification-agent` | Lint / format / typecheck / test / build in parallel. Reads commands from `.agents/context/project-tools.md`. | Structured pass/fail report with verdict |
@@ -71,7 +72,7 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 │                      → Cursor: user rules (state.vscdb)
 ├── agents/            → ~/.claude/agents/ and ~/.cursor/agents/
 │   ├── research-agent.md
-│   ├── explore-agent.md
+│   ├── orient-agent.md
 │   ├── design-discussion.md
 │   ├── verification-agent.md
 │   ├── git-agent.md
@@ -88,10 +89,11 @@ The artifact convention matters because it inverts the usual flow. Instead of ea
 ├── skills/            → ~/.claude/skills/ and ~/.cursor/skills/
 │   │                    Loaded by bare name — never by path. Only descriptions
 │   │                    are always in context; bodies load on demand.
+│   ├── context-management/    # routing + delegation playbook; references/tiers.md
 │   ├── discover-project-tools/
-│   ├── discover-repo-map/     # forked into explore-agent; references/project-conventions.md
-│   ├── discover-boundaries/   # forked into explore-agent
-│   ├── trace-symbol/          # forked into explore-agent; references/ast-grep.md
+│   ├── discover-repo-map/     # forked into orient-agent; references/project-conventions.md
+│   ├── discover-boundaries/   # forked into orient-agent
+│   ├── trace-symbol/          # forked into orient-agent; references/ast-grep.md
 │   ├── revoice/               # forked into re-voicer; references/voices/gentry.md
 │   ├── hypothesis-handling/   # knowledge (user-invocable: false)
 │   ├── boundaries/            # knowledge
@@ -116,8 +118,8 @@ At runtime, two more subdirectories appear in each consumer repo:
 <consumer-repo>/.agents/
 ├── context/           # Generated reference data, regenerated wholesale
 │   ├── project-tools.md       # Written by /discover-project-tools, read by verification-agent
-│   ├── repo-map.md            # Written by /discover-repo-map, read by explore-agent
-│   └── boundaries.md          # Written by /discover-boundaries, read by explore-agent and design-discussion
+│   ├── repo-map.md            # Written by /discover-repo-map, read by orient-agent
+│   └── boundaries.md          # Written by /discover-boundaries, read by orient-agent and design-discussion
 └── logs/              # Per-task handoff artifacts
     └── <YYYY-MM-DD>-<task-slug>/
         ├── research.md
@@ -245,7 +247,7 @@ Commit `.agents/context/` if you want teammates (and CI) to pick up the same ver
 
 The harness is opinionated, but the opinions are observable in `AGENTS.md`. If a convention does not fit your repo:
 
-- **Edit `AGENTS.md` for global changes** — it is the top-level prompt for every conversation.
+- **Edit `AGENTS.md` for global changes** — it is the top-level prompt for every conversation. Keep it to always-on constraints; routing and delegation detail belongs in the `context-management` skill.
 - **Edit `agents/<name>.md` for stage-specific changes** — each agent is self-contained; protocols can be tightened or relaxed without affecting the others.
 - **Add rules fragments under `rules/`** for shared guidance that multiple agents need to load — but resist if only one agent needs it; inline it there instead.
 

@@ -56,9 +56,9 @@ async function main() {
     return {};
   };
 
-  console.log("\nrunning query with prompt provoking explore-agent...");
+  console.log("\nrunning query with prompt provoking orient-agent...");
   const stream = query({
-    prompt: "I just cloned this repository — please use the explore-agent subagent to map its structure for me.",
+    prompt: "I just cloned this repository — please use the orient-agent subagent to map its structure for me.",
     options: {
       agents,
       cwd: REPO_ROOT,

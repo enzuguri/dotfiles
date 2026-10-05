@@ -1,14 +1,14 @@
 ---
 name: discover-repo-map
-description: Builds a repo-level orientation map — runtime and build system, entry points, conventions (naming, imports, error handling, logging, tests), hotspots from git history, and repo-wide gotchas — and caches it at `.agents/context/repo-map.md`. Invoke on first work in an unfamiliar repo or when that cache is stale. Repo-level and cached; task-specific orientation ("where do I change X?") is `explore-agent`, which reads this cache.
+description: Builds a repo-level orientation map — runtime and build system, entry points, conventions (naming, imports, error handling, logging, tests), hotspots from git history, and repo-wide gotchas — and caches it at `.agents/context/repo-map.md`. Invoke on first work in an unfamiliar repo or when that cache is stale. Repo-level and cached; task-specific orientation ("where do I change X?") is `orient-agent`, which reads this cache.
 context: fork
-agent: explore-agent
+agent: orient-agent
 ---
 
 # Discover Repo Map
 
 Produce `.agents/context/repo-map.md` — the facts about a repo that hold across
-tasks. `explore-agent` reads it instead of re-orienting from scratch every run, and
+tasks. `orient-agent` reads it instead of re-orienting from scratch every run, and
 spends its own budget on the task.
 
 Scope test for anything you record: *would this still be true for an unrelated task
@@ -18,7 +18,7 @@ next week?* If not, it belongs in a task exploration, not here.
 Structural anchors (`package.json`, `tsconfig.json`, `pyproject.toml`,
 `build.gradle*`, `Dockerfile`, `docker-compose.yml`, `.nvmrc`) are exempt. Beyond
 those, **max 5 Reads** of source files, for convention sampling only. This budget is
-separate from `explore-agent`'s task budget when it runs this procedure inline.
+separate from `orient-agent`'s task budget when it runs this procedure inline.
 
 ---
 

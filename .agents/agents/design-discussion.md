@@ -43,7 +43,7 @@ leaks. If it is missing or stale, invoke `discover-boundaries` — it forks, so 
 discovery never enters your context.
 
 ## Inputs Required
-- **Research summary** — from `research-agent` or `explore-agent` (pass the structured output, or path to a persisted summary in `.agents/logs/`)
+- **Research summary** — from `research-agent` or `orient-agent` (pass the structured output, or path to a persisted summary in `.agents/logs/`)
 - **Task goal** — only consulted at this stage, not during research
 
 If either is missing, stop and request it. Do not proceed on inferred context.

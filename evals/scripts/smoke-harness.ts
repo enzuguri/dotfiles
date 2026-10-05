@@ -15,10 +15,10 @@ async function main() {
   const testCase: EvalCase = {
     id: "harness-smoke",
     prompt:
-      "I just cloned this repository — please use the explore-agent subagent to map its structure for me.",
-    expected: { kind: "agent", name: "explore-agent" },
+      "I just cloned this repository — please use the orient-agent subagent to map its structure for me.",
+    expected: { kind: "agent", name: "orient-agent" },
     alternates: [],
-    notes: "Hand-crafted Step 3 gate case. Should observably route to explore-agent.",
+    notes: "Hand-crafted Step 3 gate case. Should observably route to orient-agent.",
   };
 
   console.log(`case.id: ${testCase.id}`);

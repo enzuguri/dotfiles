@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-10-05
+- **Note**: `explore-agent` was renamed `orient-agent` later the same day; names below are as written at the time.
 - **Evidence**: five headless probes, Claude Code 2.1.289, `--model sonnet`; fixtures and transcripts in `/tmp/harness-probes/` (ephemeral — fixture definitions reproduced below)
 
 ## Context

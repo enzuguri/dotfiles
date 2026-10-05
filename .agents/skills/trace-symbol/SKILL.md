@@ -1,9 +1,9 @@
 ---
 name: trace-symbol
-description: Traces one named symbol (function, class, hook, type, route handler) through the codebase behind a context firewall — its definition, re-exports, every importer, call sites grouped by usage pattern, and what it depends on. Use when the question is about a specific symbol ("what calls X", "where is X used", "what does X depend on"); for general orientation before a change, use `explore-agent`.
+description: Traces one named symbol (function, class, hook, type, route handler) through the codebase behind a context firewall — its definition, re-exports, every importer, call sites grouped by usage pattern, and what it depends on. Use when the question is about a specific symbol ("what calls X", "where is X used", "what does X depend on"); for general orientation before a change, use `orient-agent`.
 argument-hint: <symbol> [path to scope the search]
 context: fork
-agent: explore-agent
+agent: orient-agent
 ---
 
 # Trace Symbol
